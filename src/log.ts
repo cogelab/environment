@@ -7,7 +7,6 @@ import {mergeDeep} from "@tiopkg/utils/object/mergeDeep";
 import {WriteStream} from "tty";
 
 // Padding step
-const step = '  ';
 let padding = ' ';
 
 function pad(status) {
@@ -67,10 +66,6 @@ export interface LogTableParams {
 }
 
 export type LogTableOptions = LogTableRow[] | Partial<LogTableParams>;
-
-export type LogStatusLog<T> = {
-  [name in keyof LogColors]: ((...args) => T);
-};
 
 export class Logger {
   colors: Partial<LogColors>;
