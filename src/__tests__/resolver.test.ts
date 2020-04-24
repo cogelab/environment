@@ -164,24 +164,24 @@ describe('Environment Resolver', function () {
       });
 
       it('register local templates', function () {
-        assert.ok(this.env.get('dummy:app'));
-        assert.ok(this.env.get('dummy:coge'));
+        assert.ok(env.get('dummy:app'));
+        assert.ok(env.get('dummy:coge'));
 
-        assert.ok(this.env.get('dummy:app').packagePath.endsWith('/template-dummy'));
-        assert.ok(this.env.get('dummy:app').packagePath.endsWith('/template-dummy'));
+        assert.ok(env.get('dummy:app').packagePath.endsWith('/template-dummy'));
+        assert.ok(env.get('dummy:app').packagePath.endsWith('/template-dummy'));
       });
 
       it('registers local ts templates', function () {
-        assert.ok(this.env.get('ts:app'));
+        assert.ok(env.get('ts:app'));
       });
 
       it('js templates takes precedence', function () {
         // eslint-disable-next-line unicorn/import-index
-        assert.equal(this.env.get('ts-js:app'), require('./fixtures/template-ts-js/templates/app/coge.yml'));
+        assertTemplate(env.get('ts-js:app'), './fixtures/template-ts-js/templates/app/coge.yml');
       });
 
       it('register templates in scoped packages', function () {
-        assert.ok(this.env.get('@dummyscope/scoped:app'));
+        assert.ok(env.get('@dummyscope/scoped:app'));
       });
 
       if (!process.env.NODE_PATH) {
@@ -189,12 +189,12 @@ describe('Environment Resolver', function () {
       }
 
       it('local templates prioritized over global', function () {
-        const resolved = this.env.get('dummy:app').resolved;
+        const resolved = env.get('dummy:app').resolved;
         assert.ok(resolved.includes('orig'), `Couldn't find 'lookup-project' in ${resolved}`);
       });
 
       it('register symlinked templates', function () {
-        assert.ok(this.env.get('extend:support'));
+        assert.ok(env.get('extend:support'));
       });
     });
 
@@ -648,7 +648,7 @@ describe('Environment Resolver', function () {
       it('pass through root directory', function () {
         const dummyTemplate = 'fixtures/lookup-project/node_modules';
         const templates = env.findTemplatesIn([dummyTemplate]);
-        assert.ok(templates.length);
+        assert.ok(templates.length >= 5);
       });
     });
   });
