@@ -1,5 +1,5 @@
 {
-  "name": "coge-environemnt",
+  "name": "coge-environment",
   "version": "0.1.0",
   "description": "Handles lookups of templates in a specific environment",
   "license": "MIT",
