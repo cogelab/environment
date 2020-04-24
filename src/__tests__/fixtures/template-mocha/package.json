@@ -1,0 +1,12 @@
+{
+  "author": "",
+  "name": "template-mocha",
+  "version": "0.0.0",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

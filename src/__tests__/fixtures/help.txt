@@ -1,0 +1,14 @@
+Usage: init GENERATOR [args] [options]
+
+General options:
+  --help       # Print generator's options and usage
+  -f, --force  # Overwrite files that already exist
+
+Please choose a generator below.
+
+
+Extend
+  extend:support
+
+Simple
+  simple

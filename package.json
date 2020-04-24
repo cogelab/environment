@@ -1,0 +1,87 @@
+{
+  "name": "coge-environemnt",
+  "version": "0.1.0",
+  "description": "Handles lookups of templates in a specific environment",
+  "license": "MIT",
+  "repository": "https://github.com/cogelab/coge-environment",
+  "author": "",
+  "keywords": [
+    "development",
+    "dev",
+    "build",
+    "tool",
+    "cli",
+    "scaffold",
+    "scaffolding",
+    "generate",
+    "generator",
+    "coge",
+    "app"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "format": "prettier --write \"{src,test}/**/*.ts\" --single-quote --trailing-comma es5",
+    "prebuild": "npm run clean && echo Using TypeScript && tsc --version",
+    "build": "tsc --pretty",
+    "preversion": "npm test",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags",
+    "test": "npm run clean && npm run build && npm run jest"
+  },
+  "dependencies": {
+    "@tiopkg/utils": "^2.1.8",
+    "camelcase": "^6.0.0",
+    "chalk": "^4.0.0",
+    "debug": "^4.1.1",
+    "diff": "^4.0.2",
+    "execa": "^4.0.0",
+    "fs-extra": "^9.0.0",
+    "globby": "^11.0.0",
+    "inquirer": "^7.1.0",
+    "is-scoped": "^2.1.0",
+    "log-symbols": "^3.0.0",
+    "semver": "^7.3.2",
+    "strip-ansi": "^6.0.0",
+    "text-table": "^0.2.0",
+    "untildify": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
+    "@types/jest": "^25.2.1",
+    "@types/json5": "0.0.30",
+    "@types/node": "^13.13",
+    "@types/sinon": "^9.0.0",
+    "@types/text-table": "^0.2.1",
+    "dir-compare": "^2.3.0",
+    "jest": "^25.4.0",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "sinon": "^9.0.2",
+    "ts-jest": "^25.4.0",
+    "ts-node": "^8.9",
+    "typescript": "^3.8",
+    "yeoman-assert": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "src/__tests__/.*\\.test\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}
