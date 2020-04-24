@@ -91,7 +91,7 @@ describe('TerminalAdapter', () => {
     });
 
     it('calls console.error and perform strings interpolation', function () {
-      adapter.log.log('%has %many %reps', {
+      adapter.logger.log('%has %many %reps', {
         has: 'has',
         many: 'many',
         reps: 'reps'
@@ -101,19 +101,19 @@ describe('TerminalAdapter', () => {
     });
 
     it('substitutes strings correctly when context argument is falsey', function () {
-      adapter.log.log('Zero = %d, One = %s', 0, 1);
+      adapter.logger.log('Zero = %d, One = %s', 0, 1);
       assert(spyerror.calledOnce);
       assert.equal(stripAnsi(logMessage), 'Zero = 0, One = 1\n');
     });
 
     it('boolean values', function () {
-      adapter.log.log(true);
+      adapter.logger.log(true);
       assert(spyerror.withArgs(true).calledOnce);
       assert.equal(stripAnsi(logMessage), 'true\n');
     });
 
     it('#write() numbers', function () {
-      adapter.log.log(42);
+      adapter.logger.log(42);
       assert(spyerror.withArgs(42).calledOnce);
       assert.equal(stripAnsi(logMessage), '42\n');
     });
@@ -124,7 +124,7 @@ describe('TerminalAdapter', () => {
         another: 12
       };
 
-      adapter.log.log(outputObject);
+      adapter.logger.log(outputObject);
       assert(spyerror.withArgs(outputObject).calledOnce);
       assert.equal(
         stripAnsi(logMessage),
@@ -146,28 +146,28 @@ describe('TerminalAdapter', () => {
 
     it('#write() pass strings as they are', function () {
       const testString = 'dummy';
-      adapter.log.write(testString);
+      adapter.logger.write(testString);
       assert(spylog.withArgs(testString).calledOnce);
     });
 
     it('#write() accepts util#format style arguments', function () {
-      adapter.log.write('A number: %d, a string: %s', 1, 'bla');
+      adapter.logger.write('A number: %d, a string: %s', 1, 'bla');
       assert(spylog.withArgs('A number: 1, a string: bla').calledOnce);
     });
 
     it('#writeln() adds a \\n at the end', function () {
-      adapter.log.writeln('dummy');
+      adapter.logger.writeln('dummy');
       assert(spylog.withArgs('dummy').calledOnce);
       assert(spylog.withArgs('\n').calledOnce);
     });
 
     it('#ok() adds a green "✔ " at the beginning and \\n at the end', function () {
-      adapter.log.ok('dummy');
+      adapter.logger.ok('dummy');
       assert(spylog.withArgs(`${logSymbols.success} dummy\n`).calledOnce);
     });
 
     it('#error() adds a green "✗ " at the beginning and \\n at the end', function () {
-      adapter.log.error('dummy');
+      adapter.logger.error('dummy');
       assert(spylog.withArgs(`${logSymbols.error} dummy\n`).calledOnce);
     });
   });

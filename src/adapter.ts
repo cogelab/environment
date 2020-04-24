@@ -1,7 +1,7 @@
 import inquirer = require('inquirer');
 import diff = require('diff');
 import chalk = require('chalk');
-import {Logger} from "./log";
+import {Logger} from "./logger";
 import {ReadStream, WriteStream} from "tty";
 import {Console} from "console";
 
@@ -37,7 +37,7 @@ export interface TerminalAdapterOptions {
 export class TerminalAdapter implements Adapter {
   promptModule: PromptModule<any>;
   console: Console;
-  log: Logger;
+  logger: Logger;
 
   constructor(options?: TerminalAdapterOptions) {
     options = options || {};
@@ -46,7 +46,7 @@ export class TerminalAdapter implements Adapter {
 
     this.promptModule = inquirer.createPromptModule({skipTTYChecks: true, input: options.stdin, output: stdout});
     this.console = options.console || new Console(stdout, stderr);
-    this.log = new Logger({console: this.console, stdout: options.stdout});
+    this.logger = new Logger({console: this.console, stdout: options.stdout});
   }
 
   get _colorDiffAdded() {
