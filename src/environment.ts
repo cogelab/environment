@@ -379,10 +379,10 @@ export class Environment extends Resolver {
    * @param  {String} namespace
    * @return {String} - path of the package
    */
-  getPackagePath(namespace) {
+  getPackagePath(namespace): string | undefined {
     if (namespace.includes(':')) {
-      const template = this.get(namespace) || {};
-      return template.packagePath;
+      const template = this.get(namespace);
+      return template?.packagePath;
     }
     const packagePaths = this.getPackagePaths(namespace) || [];
     return packagePaths[0];
@@ -409,7 +409,7 @@ export class Environment extends Resolver {
    * @param  {String} namespaceOrPath
    * @return {Template|null} - the template registered under the namespace
    */
-  get(namespaceOrPath?: string) {
+  get(namespaceOrPath?: string): Template | undefined {
     // Stop the recursive search if nothing is left
     if (!namespaceOrPath) {
       return;
@@ -457,7 +457,7 @@ export class Environment extends Resolver {
    * @param  {String} path
    * @return {Template|null} - the template found at the location
    */
-  getByPath(path) {
+  getByPath(path): Template | undefined {
     if (fs.existsSync(path)) {
       const namespace = this.namespace(path);
       this.register(path, namespace);
