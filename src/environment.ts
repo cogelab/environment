@@ -36,7 +36,7 @@ export interface EnvironmentOptions {
   cwd?: string;
 }
 
-export interface LookupOptions extends PackageLookupOptions {
+export interface LookupTemplateOptions extends PackageLookupOptions {
   singleResult?: boolean;
   multiple?: boolean;
   packagePath?: boolean;
@@ -136,13 +136,13 @@ export class Environment extends Resolver {
    * @param {Boolean} [options.singleResult=true] - Set false to return multiple values.
    * @return {String} template
    */
-  static lookupTemplate(namespace: string, options: Partial<LookupOptions> | boolean = {singleResult: true}): string | string[] {
-    let opts: LookupOptions;
+  static lookupTemplate(namespace: string, options: Partial<LookupTemplateOptions> | boolean = {singleResult: true}): string | string[] {
+    let opts: LookupTemplateOptions;
     if (typeof options === 'boolean') {
-      opts = <LookupOptions>{singleResult: true, localOnly: options};
+      opts = <LookupTemplateOptions>{singleResult: true, localOnly: options};
     } else {
       // Keep compatibility with opts.multiple
-      opts = <LookupOptions>{singleResult: !options.multiple, ...options};
+      opts = <LookupTemplateOptions>{singleResult: !options.multiple, ...options};
     }
 
     opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/coge.toml'));
@@ -411,9 +411,6 @@ export class Environment extends Resolver {
 
     let namespace = namespaceOrPath;
 
-    // Legacy yeoman-template `#hookFor()` function is passing the template path as part
-    // of the namespace. If we find a path delimiter in the namespace, then ignore the
-    // last part of the namespace.
     const parts = namespaceOrPath.split(':');
     const maybePath = <string>last(parts);
     if (parts.length > 1 && /[/\\]/.test(maybePath)) {
