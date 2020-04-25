@@ -161,7 +161,7 @@ export class Environment extends Resolver {
       opts = <LookupOptions>{singleResult: !options.multiple, ...options};
     }
 
-    opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/coge.{yml,json}'));
+    opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/coge.toml'));
 
     const name = Environment.namespaceToName(namespace);
     opts.packagePatterns = opts.packagePatterns || getTemplateHint(name);

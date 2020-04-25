@@ -85,7 +85,7 @@ describe('Environment Resolver', function () {
     });
 
     it('js templates takes precedence', function () {
-      assertTemplate(env.get('ts-js:app'), './fixtures/template-ts-js/templates/app/coge.yml');
+      assertTemplate(env.get('ts-js:app'), './fixtures/template-ts-js/templates/app/coge.toml');
     });
 
     it('register templates in scoped packages', function () {
@@ -177,7 +177,7 @@ describe('Environment Resolver', function () {
 
       it('js templates takes precedence', function () {
         // eslint-disable-next-line unicorn/import-index
-        assertTemplate(env.get('ts-js:app'), './fixtures/template-ts-js/templates/app/coge.yml');
+        assertTemplate(env.get('ts-js:app'), './fixtures/template-ts-js/templates/app/coge.toml');
       });
 
       it('register templates in scoped packages', function () {
@@ -364,7 +364,7 @@ describe('Environment Resolver', function () {
     });
 
     it('with sub-sub-templates filePatterns', function () {
-      env.lookup({npmPaths: ['node_modules'], filePatterns: ['*/*/coge.yml'], globbyDeep: 3});
+      env.lookup({npmPaths: ['node_modules'], filePatterns: ['*/*/coge.toml'], globbyDeep: 3});
       assert.ok(env.get('@scoped/scoped:app:scaffold'));
     });
 
@@ -682,15 +682,15 @@ describe('Environment Resolver', function () {
     describe('Find template', () => {
       it('Scoped lookup', () => {
         const modulePath = <string>Environment.lookupTemplate('@dummyscope/scoped:app');
-        assert.ok(modulePath.endsWith('node_modules/@dummyscope/template-scoped/app/coge.yml'));
+        assert.ok(modulePath.endsWith('node_modules/@dummyscope/template-scoped/app/coge.toml'));
         const packagePath = <string>Environment.lookupTemplate('@dummyscope/scoped:app', {packagePath: true});
         assert.ok(packagePath.endsWith('node_modules/@dummyscope/template-scoped'));
       });
       it('Lookup', () => {
         const modulePath = <string>Environment.lookupTemplate('dummy:app');
         const modulePath2 = <string>Environment.lookupTemplate('dummy:coge');
-        assert.ok(modulePath.endsWith('node_modules/template-dummy/app/coge.yml'));
-        assert.ok(modulePath2.endsWith('node_modules/template-dummy/coge/coge.yml'));
+        assert.ok(modulePath.endsWith('node_modules/template-dummy/app/coge.toml'));
+        assert.ok(modulePath2.endsWith('node_modules/template-dummy/coge/coge.toml'));
 
         const packagePath = <string>Environment.lookupTemplate('dummy:app', {packagePath: true});
         const packagePath2 = <string>Environment.lookupTemplate('dummy:coge', {packagePath: true});
@@ -701,7 +701,7 @@ describe('Environment Resolver', function () {
       });
       it('Module Lookup', () => {
         const modulePath = <string>Environment.lookupTemplate('module:app');
-        assert.ok(modulePath.endsWith('node_modules/template-module/templates/app/coge.yml'), modulePath);
+        assert.ok(modulePath.endsWith('node_modules/template-module/templates/app/coge.toml'), modulePath);
 
         const packagePath = <string>Environment.lookupTemplate('module:app', {packagePath: true});
         assert.ok(packagePath.endsWith('node_modules/template-module'), packagePath);
@@ -746,15 +746,15 @@ describe('Environment Resolver', function () {
     describe('Find template', () => {
       it('Module Lookup', () => {
         const modulePath = <string>Environment.lookupTemplate('module:app');
-        assert.ok(modulePath.endsWith('node_modules/template-module/templates/app/coge.yml'));
+        assert.ok(modulePath.endsWith('node_modules/template-module/templates/app/coge.toml'));
 
         const multiplePath = Environment.lookupTemplate('module:app', {multiple: true});
-        assert.ok(multiplePath[0].endsWith('lookup-project/node_modules/template-module/templates/app/coge.yml'));
-        assert.ok(multiplePath[1].endsWith('lookup-project/node_modules/foo/node_modules/template-module/templates/app/coge.yml'));
+        assert.ok(multiplePath[0].endsWith('lookup-project/node_modules/template-module/templates/app/coge.toml'));
+        assert.ok(multiplePath[1].endsWith('lookup-project/node_modules/foo/node_modules/template-module/templates/app/coge.toml'));
 
         const multiplePath2 = Environment.lookupTemplate('module:app', {singleResult: false});
-        assert.ok(multiplePath2[0].endsWith('lookup-project/node_modules/template-module/templates/app/coge.yml'));
-        assert.ok(multiplePath2[1].endsWith('lookup-project/node_modules/foo/node_modules/template-module/templates/app/coge.yml'));
+        assert.ok(multiplePath2[0].endsWith('lookup-project/node_modules/template-module/templates/app/coge.toml'));
+        assert.ok(multiplePath2[1].endsWith('lookup-project/node_modules/foo/node_modules/template-module/templates/app/coge.toml'));
       });
     });
   });
