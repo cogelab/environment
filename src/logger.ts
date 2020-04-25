@@ -38,8 +38,8 @@ const DEFAULT_COLORS = () => ({
   invoke: 'bold',
   conflict: 'red',
   identical: 'cyan',
+  inject: 'magenta',
   info: 'gray',
-  notice: 'magenta',
 });
 
 export interface BuiltinLogColors {
@@ -49,8 +49,8 @@ export interface BuiltinLogColors {
   invoke: string
   conflict: string
   identical: string
+  inject: string;
   info: string;
-  notice: string;
 }
 
 export interface LogColors extends BuiltinLogColors {
@@ -202,12 +202,12 @@ export class Logger implements StatusLogger<Logger> {
     return this.status('info', ...args);
   }
 
-  invoke(...args: any[]): Logger {
-    return this.status('invoke', ...args);
+  inject(...args: any[]): Logger {
+    return this.status('inject', ...args);
   }
 
-  notice(...args: any[]): Logger {
-    return this.status('notice', ...args);
+  invoke(...args: any[]): Logger {
+    return this.status('invoke', ...args);
   }
 
   skip(...args: any[]): Logger {
