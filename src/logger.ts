@@ -182,35 +182,35 @@ export class Logger implements StatusLogger<Logger> {
     return this;
   }
 
-  conflict(args: any): Logger {
+  conflict(...args: any[]): Logger {
     return this.status('conflict', ...args);
   }
 
-  create(args: any): Logger {
+  create(...args: any[]): Logger {
     return this.status('create', ...args);
   }
 
-  force(args: any): Logger {
+  force(...args: any[]): Logger {
     return this.status('force', ...args);
   }
 
-  identical(args: any): Logger {
+  identical(...args: any[]): Logger {
     return this.status('identical', ...args);
   }
 
-  info(args: any): Logger {
+  info(...args: any[]): Logger {
     return this.status('info', ...args);
   }
 
-  invoke(args: any): Logger {
+  invoke(...args: any[]): Logger {
     return this.status('invoke', ...args);
   }
 
-  notice(args: any): Logger {
+  notice(...args: any[]): Logger {
     return this.status('notice', ...args);
   }
 
-  skip(args: any): Logger {
+  skip(...args: any[]): Logger {
     return this.status('skip', ...args);
   }
 
