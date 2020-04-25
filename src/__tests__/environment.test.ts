@@ -64,14 +64,14 @@ describe('Environment', () => {
     it('determine registered Template namespace and resolved path', function () {
       const simple = env.get('fixtures:template-simple');
       assert.ok(simple);
-      assert.ok(simple.namespace, 'fixtures:template-simple');
-      assert.ok(simple.resolved, path.resolve(simplePath));
-      assert.ok(simple.packagePath, simplePath);
+      assert.ok(simple!.namespace, 'fixtures:template-simple');
+      assert.ok(simple!.resolved, path.resolve(simplePath));
+      assert.ok(simple!.packagePath, simplePath);
 
       const extend = env.get('scaffold');
       assert.ok(extend);
-      assert.ok(extend.namespace, 'scaffold');
-      assert.ok(extend.resolved, path.resolve(extendPath));
+      assert.ok(extend!.namespace, 'scaffold');
+      assert.ok(extend!.resolved, path.resolve(extendPath));
     });
 
     it('throw when String is not passed as first parameter', () => {
