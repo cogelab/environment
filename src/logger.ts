@@ -38,18 +38,23 @@ const DEFAULT_COLORS = () => ({
   invoke: 'bold',
   conflict: 'red',
   identical: 'cyan',
-  info: 'gray'
+  info: 'gray',
+  notice: 'magenta',
 });
 
-export interface LogColors {
+export interface BuiltinLogColors {
   skip: string
   force: string
   create: string
   invoke: string
   conflict: string
   identical: string
-  info: string
-  [color: string]: string;
+  info: string;
+  notice: string;
+}
+
+export interface LogColors extends BuiltinLogColors {
+  [c: string]: string;
 }
 
 export interface LogParams {
@@ -67,7 +72,11 @@ export interface LogTableParams {
 
 export type LogTableOptions = LogTableRow[] | Partial<LogTableParams>;
 
-export class Logger {
+export type StatusLogger<T> = {
+  [p in keyof BuiltinLogColors]: ((...args: any[]) => T);
+};
+
+export class Logger implements StatusLogger<Logger> {
   colors: Partial<LogColors>;
   stderr: WriteStream;
   console: Console;
@@ -162,15 +171,47 @@ export class Logger {
     return this;
   };
 
-  status(status: string, ...args) {
-    status = pad(status);
+  status(status: keyof LogColors, ...args) {
     const color = this.colors[status];
+    status = pad(status);
     if (color) {
       status = chalk[color](status);
     }
     this.write(status).write(padding);
     this.write(util.format.apply(util, args) + '\n');
     return this;
+  }
+
+  conflict(args: any): Logger {
+    return this.status('conflict', ...args);
+  }
+
+  create(args: any): Logger {
+    return this.status('create', ...args);
+  }
+
+  force(args: any): Logger {
+    return this.status('force', ...args);
+  }
+
+  identical(args: any): Logger {
+    return this.status('identical', ...args);
+  }
+
+  info(args: any): Logger {
+    return this.status('info', ...args);
+  }
+
+  invoke(args: any): Logger {
+    return this.status('invoke', ...args);
+  }
+
+  notice(args: any): Logger {
+    return this.status('notice', ...args);
+  }
+
+  skip(args: any): Logger {
+    return this.status('skip', ...args);
   }
 
 }
