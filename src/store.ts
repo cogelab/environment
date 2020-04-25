@@ -1,14 +1,6 @@
+import {Templates} from "./types";
+
 const debug = require('debug')('coge:environment:store');
-
-export interface Template {
-  resolved: string;
-  namespace: string;
-  packagePath: string;
-}
-
-export interface Templates {
-  [ns: string]: Template;
-}
 
 /**
  * The Generator store

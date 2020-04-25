@@ -9,30 +9,14 @@ import {sortBy} from "@tiopkg/utils/array/sortBy";
 import {last} from "@tiopkg/utils/array/last";
 
 import {PackageLookup, PackageLookupOptions, Resolver} from "./resolver";
-import {Adapter, TerminalAdapter} from "./adapter";
-import {Template, Store} from "./store";
+import {TerminalAdapter} from "./adapter";
+import {Store} from "./store";
 import {ReadStream, WriteStream} from "tty";
 import escapeRegExp from "@tiopkg/utils/string/escapeRegExp";
 import toArray from "@tiopkg/utils/array/toArray";
+import {Template} from "./types";
 
 const debug = require('debug')('coge:environment');
-
-/**
- * Two-step argument splitting function that first splits arguments in quotes,
- * and then splits up the remaining arguments if they are not part of a quote.
- */
-function splitArgsFromString(argsString) {
-  let result: string[] = [];
-  const quoteSeparatedArgs = argsString.split(/(\x22[^\x22]*\x22)/).filter(x => x);
-  quoteSeparatedArgs.forEach(arg => {
-    if (arg.match('\x22')) {
-      result.push(arg.replace(/\x22/g, ''));
-    } else {
-      result = result.concat(arg.trim().split(' '));
-    }
-  });
-  return result;
-}
 
 /**
  * Hint of template module name
@@ -263,8 +247,6 @@ export class Environment extends Resolver {
    * (e.g. IDE plugins), otherwise a `TerminalAdapter` is instantiated by default
    *
    * @constructor
-   * @mixes env/resolver
-   * @mixes env/composability
    * @param {Object}                opts
    * @param {Boolean} [opts.experimental]
    * @param {Object} [opts.sharedOptions]

@@ -296,7 +296,7 @@ export interface LookupOptions {
   filterPaths: boolean;
 }
 
-export interface TemplateEntry {
+export interface TemplateItem {
   templatePath: string;
   packagePath: string;
   namespace: string;
@@ -364,7 +364,7 @@ export abstract class Resolver {
     // We want to register high priorities packages after.
     opts.reverse = opts.reverse === undefined ? !opts.singleResult : opts.reverse;
 
-    const templates: TemplateEntry[] = [];
+    const templates: TemplateItem[] = [];
     this.packageLookup.sync(opts, module => {
       const templatePath = module.filePath;
       const packagePath = module.packagePath;
