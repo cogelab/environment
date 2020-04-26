@@ -355,7 +355,7 @@ export abstract class Resolver {
     // templates should be after, last will override registered one.
     opts.filePatterns = opts.filePatterns ||
       lookups.reduce((acc, prefix) => acc.concat([
-        path.join(prefix, '*/coge.toml'),
+        path.join(prefix, '*/template.toml'),
       ]), <string[]>[]);
 
     // Backward compatibility

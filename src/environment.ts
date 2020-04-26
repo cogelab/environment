@@ -51,14 +51,6 @@ export class Environment extends Resolver {
   adapter: TerminalAdapter;
   store: Store;
 
-  static get UNKNOWN_NAMESPACE() {
-    return 'unknownnamespace';
-  }
-
-  static get UNKNOWN_RESOLVED() {
-    return 'unknown';
-  }
-
   static get lookups() {
     return ['.', 'templates', 'lib/templates'];
   }
@@ -74,18 +66,6 @@ export class Environment extends Resolver {
       env.adapter = new TerminalAdapter();
     }
 
-    // if (!env.runLoop) {
-    //   env.runLoop = new GroupedQueue(Environment.queues);
-    // }
-    //
-    // if (!env.sharedFs) {
-    //   env.sharedFs = memFs.create();
-    // }
-    //
-    // if (!env.fs) {
-    //   env.fs = FileEditor.create(env.sharedFs);
-    // }
-
     return env;
   }
 
@@ -100,19 +80,6 @@ export class Environment extends Resolver {
   static createEnv(opts?: EnvironmentOptions, adapter?: TerminalAdapter): Environment {
     return new Environment(opts, adapter);
   }
-
-  /**
-   * Factory method to create an environment instance. Take same parameters as the
-   * Environment constructor.
-   *
-   * @param {String} version - Version of the Environment
-   * @param {...any} args - Same arguments as {@link Environment} constructor.
-   * @return {Environment} a new Environment instance
-   */
-  // static createEnvWithVersion(version, ...args) {
-  //   const VersionedEnvironment = Environment.repository.requireModule('yeoman-environment', version);
-  //   return new VersionedEnvironment(...args);
-  // }
 
   /**
    * Convert a templates namespace to its name
@@ -145,7 +112,7 @@ export class Environment extends Resolver {
       opts = <LookupTemplateOptions>{singleResult: !options.multiple, ...options};
     }
 
-    opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/coge.toml'));
+    opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/template.toml'));
 
     const name = Environment.namespaceToName(namespace);
     opts.packagePatterns = opts.packagePatterns || getTemplateHint(name);
@@ -218,7 +185,7 @@ export class Environment extends Resolver {
     // Cleanup `ns` from unwanted parts and then normalize slashes to `:`
     ns = ns
       .replace(/(.*template-)/, '') // Remove before `template-`
-      .replace(/[/\\](coge|index|main)$/, '') // Remove `/coge`, `/index` or `/main`
+      .replace(/[/\\](coge|template|index|main)$/, '') // Remove `/coge`, `template`, `/index` or `/main`
       .replace(/^[/\\]+/, '') // Remove leading `/`
       .replace(/[/\\]+/g, ':'); // Replace slashes by `:`
 

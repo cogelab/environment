@@ -1,6 +1,6 @@
 {
   "name": "lookup-dummy-env",
   "dependencies": {
-    "template-dummy": "^0.1.1"
+    "template-dummy": "^0.1.2"
   }
 }
