@@ -43,7 +43,6 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
   load?: boolean;
   optional?: boolean;
 
-
   constructor(parsed: NamespaceOptions) {
     this._complete = parsed.complete;
     this.scope = parsed.scope;

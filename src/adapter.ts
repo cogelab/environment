@@ -5,8 +5,9 @@ import {Logger} from "./logger";
 import {ReadStream, WriteStream} from "tty";
 import {Console} from "console";
 
-export interface PromptModule<T> {
-  (questions: object | object[], answers?: T): Promise<T>;
+export type Answers = Record<string, any>;
+export interface PromptModule {
+  (questions: object | object[], answers?: Answers): Promise<Answers>;
 }
 
 export type PromptCallback<T> = (answers: T) => void;
@@ -20,6 +21,7 @@ export interface Adapter {
 }
 
 export interface TerminalAdapterOptions {
+  prompt?: PromptModule;
   stdin?: ReadStream;
   stdout?: WriteStream;
   stderr?: WriteStream;
@@ -35,7 +37,7 @@ export interface TerminalAdapterOptions {
  * @constructor
  */
 export class TerminalAdapter implements Adapter {
-  promptModule: PromptModule<any>;
+  promptModule: PromptModule;
   console: Console;
   logger: Logger;
 
@@ -44,7 +46,7 @@ export class TerminalAdapter implements Adapter {
     const stdout = options.stdout || process.stdout;
     const stderr = options.stderr || options.stdout || process.stderr;
 
-    this.promptModule = inquirer.createPromptModule({skipTTYChecks: true, input: options.stdin, output: stdout});
+    this.promptModule = options.prompt || inquirer.createPromptModule({input: options.stdin, output: stdout});
     this.console = options.console || new Console(stdout, stderr);
     this.logger = new Logger({console: this.console, stdout: options.stdout});
   }
@@ -71,9 +73,9 @@ export class TerminalAdapter implements Adapter {
    * instances)
    *
    */
-  prompt<T>(questions: object | object[], answers?: T | PromptCallback<T>, cb?: PromptCallback<T>): Promise<T> {
+  prompt(questions: object | object[], answers?: Answers | PromptCallback<Answers>, cb?: PromptCallback<Answers>): Promise<Answers> {
     if (typeof answers === "function") {
-      cb = <PromptCallback<T>>answers;
+      cb = <PromptCallback<Answers>>answers;
       answers = undefined;
     }
     const promise = this.promptModule(questions, answers);

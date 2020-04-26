@@ -9,7 +9,7 @@ import {sortBy} from "@tiopkg/utils/array/sortBy";
 import {last} from "@tiopkg/utils/array/last";
 
 import {PackageLookup, PackageLookupOptions, Resolver} from "./resolver";
-import {TerminalAdapter} from "./adapter";
+import {PromptModule, TerminalAdapter} from "./adapter";
 import {Store} from "./store";
 import {ReadStream, WriteStream} from "tty";
 import escapeRegExp from "@tiopkg/utils/string/escapeRegExp";
@@ -30,6 +30,7 @@ function getTemplateHint(namespace) {
 }
 
 export interface EnvironmentOptions {
+  prompt?: PromptModule;
   console?: Console;
   stdin?: ReadStream;
   stderr?: WriteStream;
@@ -229,11 +230,8 @@ export class Environment extends Resolver {
     super();
 
     this.options = opts || {};
-    this.adapter = adapter || new TerminalAdapter({
-      console: this.options.console,
-      stdin: this.options.stdin,
-      stderr: this.options.stderr
-    });
+    const {prompt, console, stdin, stderr} = this.options;
+    this.adapter = adapter || new TerminalAdapter({prompt, console, stdin, stderr});
     this.cwd = this.options.cwd || process.cwd();
     this.store = new Store();
 
