@@ -290,7 +290,7 @@ export class Environment extends Resolver {
    * Returns stored templates meta
    * @return {Object}
    */
-  getTemplatesMeta() {
+  getTemplates() {
     return this.store.getTemplates();
   }
 
@@ -300,7 +300,7 @@ export class Environment extends Resolver {
    * @return {Array}
    */
   getTemplateNames() {
-    return uniq(Object.keys(this.getTemplatesMeta()).map(Environment.namespaceToName));
+    return uniq(Object.keys(this.getTemplates()).map(Environment.namespaceToName));
   }
 
   /**
@@ -448,21 +448,6 @@ export class Environment extends Resolver {
 
     m = untildify(m);
     m = path.normalize(m);
-
-    // if (path.extname(m) === '') {
-    //   m += path.sep;
-    // }
-
-    // let resolved;
-    // // Win32: moduleId is resolving as moduleId.js or moduleId.json instead of moduleId/index.js, workaround it.
-    // if (process.platform === 'win32' && path.extname(moduleId) === '') {
-    //   try {
-    //     resolved = require.resolve(path.join(moduleId, 'index'));
-    //   } catch (_) {
-    //   }
-    // }
-    //
-    // return resolved || require.resolve(moduleId);
 
     return m;
   }

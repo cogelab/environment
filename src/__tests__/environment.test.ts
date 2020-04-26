@@ -137,7 +137,7 @@ describe('Environment', () => {
     });
 
     it('get the registered Templates metadatas', function () {
-      const meta = env.getTemplatesMeta().simple;
+      const meta = env.getTemplates().simple;
       assert.deepEqual(meta.resolved, templatePath);
       assert.deepEqual(meta.namespace, 'simple');
     });
