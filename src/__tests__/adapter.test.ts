@@ -4,6 +4,7 @@ import sinon = require('sinon');
 import stripAnsi = require('strip-ansi');
 import logSymbols = require("log-symbols");
 import {TerminalAdapter} from '../adapter';
+import * as chalk from "chalk";
 
 describe('TerminalAdapter', () => {
   let adapter: TerminalAdapter;
@@ -159,6 +160,11 @@ describe('TerminalAdapter', () => {
       adapter.logger.writeln('dummy');
       assert(spylog.withArgs('dummy').calledOnce);
       assert(spylog.withArgs('\n').calledOnce);
+    });
+
+    it('#colorful() writes colorful texts', function () {
+      adapter.logger.colorful('{green dummy}');
+      assert(spylog.withArgs(`${chalk.green('dummy')}\n`).calledOnce);
     });
 
     it('#ok() adds a green "✔ " at the beginning and \\n at the end', function () {
