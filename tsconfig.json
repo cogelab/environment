@@ -7,14 +7,23 @@
     "strictNullChecks": true,
     "declaration": true,
     "sourceMap": true,
-    "module": "commonjs",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "lib",
     "preserveConstEnums": true,
     "removeComments": true,
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "target": "es6"
   },
-  "include": ["index.ts", "src"],
-  "exclude": ["node_modules"]
+  "include": [
+    "index.ts",
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "__tests__",
+    "src/**/*.test.ts"
+  ]
 }
