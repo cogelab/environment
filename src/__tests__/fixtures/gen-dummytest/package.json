@@ -1,0 +1,16 @@
+{
+  "name": "gen-dummytest",
+  "version": "0.1.0",
+  "description": "A dummy Coge generator used for unit test",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cogelab/gen-dummytest.git"
+  },
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/cogelab/gen-dummytest/issues"
+  }
+}

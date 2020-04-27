@@ -48,9 +48,9 @@ export class PackageLookup {
    *
    * @param {boolean|Object} [options]
    * @param {boolean} [options.localOnly = false] - Set true to skip lookups of
-   *                                               globally-installed templates.
-   * @param {string|Array} [options.packagePaths] - Paths to look for templates.
-   * @param {string|Array} [options.npmPaths] - Repository paths to look for templates packages.
+   *                                               globally-installed generators.
+   * @param {string|Array} [options.packagePaths] - Paths to look for generators.
+   * @param {string|Array} [options.npmPaths] - Repository paths to look for generators packages.
    * @param {string|Array} [options.filePatterns='*\/index.js'] - File pattern to look for.
    * @param {string|Array} [options.packagePatterns='lookup'] - Package pattern to look for.
    * @param {boolean} [options.reverse = false] - Set true reverse npmPaths/packagePaths order
@@ -103,8 +103,8 @@ export class PackageLookup {
 
 
   /**
-   * Search npm for every available templates.
-   * Templates are npm packages who's name start with `template-` and who're placed in the
+   * Search npm for every available generators.
+   * Generators are npm packages who's name start with `gen-` and who're placed in the
    * top level `node_module` path. They can be installed globally or locally.
    *
    * @method
@@ -112,8 +112,8 @@ export class PackageLookup {
    *
    * @param {Array} searchPaths List of search paths
    * @param {Object}  [options]
-   * @param {string|string[]} [options.packagePatterns='template-*'] - Pattern pattern.
-   * @return {Array} List of the template modules path
+   * @param {string|string[]} [options.packagePatterns='gen-*'] - Pattern pattern.
+   * @return {Array} List of the generator modules path
    */
   findPackagesIn(searchPaths: string[], options: { packagePatterns?: string | string[] } = {}) {
     const packagePatterns = options.packagePatterns || PACKAGE_NAME;
@@ -137,7 +137,7 @@ export class PackageLookup {
 
         // To limit recursive lookups into non-namespace folders within globby,
         // fetch all namespaces in root, then search each namespace separately
-        // for template modules
+        // for generator modules
         const scopes = globby.sync(
           ['@*'],
           {cwd: root, expandDirectories: false, onlyDirectories: true, absolute: true, deep: 0}
@@ -166,7 +166,7 @@ export class PackageLookup {
    *
    * @param {boolean|Object} [options]
    * @param {boolean} [options.localOnly = false] - Set true to skip lookups of
-   *                                               globally-installed templates.
+   *                                               globally-installed generators.
    * @param {boolean} [options.filterPaths = false] - Remove paths that don't ends
    *                       with a supported path (don't touch at NODE_PATH paths).
    * @return {Array} lookup paths
@@ -273,7 +273,7 @@ export class PackageLookup {
       paths.push(path.resolve(globalInstall));
     }
 
-    // Adds support for template resolving when coge-template has been linked
+    // Adds support for generator resolving when coge-generator has been linked
     if (process.argv[1]) {
       paths.push(filterValidNpmPath(path.join(path.dirname(process.argv[1]), '../..'), !filterPaths));
     }
@@ -296,8 +296,8 @@ export interface LookupOptions {
   filterPaths: boolean;
 }
 
-export interface TemplateItem {
-  templatePath: string;
+export interface GeneratorItem {
+  generatorPath: string;
   packagePath: string;
   namespace: string;
   registered: boolean;
@@ -318,28 +318,28 @@ export abstract class Resolver {
   abstract register(name: string, namespace: string, packagePath?: string): this;
 
   /**
-   * Search for templates and their sub templates.
+   * Search for generators and their sub generators.
    *
-   * A template is a `:lookup/:name/index.js` file placed inside an npm package.
+   * A generator is a `:lookup/:name/index.js` file placed inside an npm package.
    *
    * Defaults lookups are:
    *   - ./
-   *   - templates/
-   *   - lib/templates/
+   *   - generators/
+   *   - lib/generators/
    *
-   * So this index file `node_modules/template-dummy/lib/templates/yo/index.js` would be
-   * registered as `dummy:coge` template.
+   * So this index file `node_modules/gen-dummy/lib/generators/yo/index.js` would be
+   * registered as `dummy:coge` generator.
    *
    * @param {boolean|Object} [options]
    * @param {boolean} [options.localOnly = false] - Set true to skip lookups of
-   *                                               globally-installed templates.
-   * @param {string|Array} [options.packagePaths] - Paths to look for templates.
-   * @param {string|Array} [options.npmPaths] - Repository paths to look for templates packages.
+   *                                               globally-installed generators.
+   * @param {string|Array} [options.packagePaths] - Paths to look for generators.
+   * @param {string|Array} [options.npmPaths] - Repository paths to look for generators packages.
    * @param {string|Array} [options.filePatterns='*\/index.js'] - File pattern to look for.
-   * @param {string|Array} [options.packagePatterns='template-*'] - Package pattern to look for.
+   * @param {string|Array} [options.packagePatterns='gen-*'] - Package pattern to look for.
    * @param {boolean}      [options.singleResult=false] - Set true to stop lookup on the first match.
    * @param {Number}       [options.globbyDeep] - Deep option to be passed to globby.
-   * @return {Object[]} List of templates
+   * @return {Object[]} List of generators
    */
   lookup(options: Partial<LookupOptions> | boolean = {localOnly: false}) {
 
@@ -352,7 +352,7 @@ export abstract class Resolver {
     }
 
     const lookups: string[] = opts.lookups || this.lookups;
-    // templates should be after, last will override registered one.
+    // generators should be after, last will override registered one.
     opts.filePatterns = opts.filePatterns ||
       lookups.reduce((acc, prefix) => acc.concat([
         path.join(prefix, '*/template.toml'),
@@ -360,32 +360,32 @@ export abstract class Resolver {
 
     // Backward compatibility
     opts.filterPaths = opts.filterPaths === undefined ? false : opts.filterPaths;
-    opts.packagePatterns = opts.packagePatterns || 'template-*';
+    opts.packagePatterns = opts.packagePatterns || 'gen-*';
     // We want to register high priorities packages after.
     opts.reverse = opts.reverse === undefined ? !opts.singleResult : opts.reverse;
 
-    const templates: TemplateItem[] = [];
+    const generators: GeneratorItem[] = [];
     this.packageLookup.sync(opts, module => {
-      const templatePath = module.filePath;
+      const generatorPath = module.filePath;
       const packagePath = module.packagePath;
       let repositoryPath = path.join(packagePath, '..');
       if (path.basename(repositoryPath).startsWith('@')) {
         // Scoped package
         repositoryPath = path.join(repositoryPath, '..');
       }
-      const namespace = this.namespace(path.relative(repositoryPath, templatePath), lookups);
+      const namespace = this.namespace(path.relative(repositoryPath, generatorPath), lookups);
 
-      const registered = this._tryRegistering(templatePath, packagePath, namespace);
-      templates.push({templatePath, packagePath, namespace, registered});
+      const registered = this._tryRegistering(generatorPath, packagePath, namespace);
+      generators.push({generatorPath, packagePath, namespace, registered});
       return opts.singleResult && registered;
     });
 
-    return templates;
+    return generators;
   };
 
   /**
-   * Search npm for every available templates.
-   * Templates are npm packages who's name start with `template-` and who're placed in the
+   * Search npm for every available generators.
+   * Generators are npm packages who's name start with `gen-` and who're placed in the
    * top level `node_module` path. They can be installed globally or locally.
    *
    * @deprecated
@@ -393,44 +393,44 @@ export abstract class Resolver {
    *
    * @param {Array}  searchPaths List of search paths
    * @param {Object}  [options]
-   * @param {boolean} [options.packagePatterns='template-*'] - Pattern pattern.
-   * @return {Array} List of the template modules path
+   * @param {boolean} [options.packagePatterns='gen-*'] - Pattern pattern.
+   * @return {Array} List of the generator modules path
    */
-  findTemplatesIn(searchPaths: string | string[], options: { packagePatterns?: string } | string = {}) {
+  findGeneratorsIn(searchPaths: string | string[], options: { packagePatterns?: string } | string = {}) {
     if (typeof options === 'string') {
       options = {packagePatterns: options};
     }
 
-    options.packagePatterns = options.packagePatterns || 'template-*';
+    options.packagePatterns = options.packagePatterns || 'gen-*';
     searchPaths = Array.isArray(searchPaths) ? searchPaths : [searchPaths];
 
     return this.packageLookup.findPackagesIn(searchPaths, options);
   };
 
   /**
-   * Try registering a TemplateEntry to this environment.
+   * Try registering a GeneratorEntry to this environment.
    *
    * @private
    *
-   * @param  {String} templateReference A template reference, usually a file path.
-   * @param  {String} [packagePath] - TemplateEntry's package path.
-   * @param  {String} [namespace] - namespace of the template.
-   * @return {boolean} true if the template have been registered.
+   * @param  {String} generatorReference A generator reference, usually a file path.
+   * @param  {String} [packagePath] - GeneratorEntry's package path.
+   * @param  {String} [namespace] - namespace of the generator.
+   * @return {boolean} true if the generator have been registered.
    */
-  _tryRegistering(templateReference: string, packagePath?: string, namespace?: string) {
-    const realPath = fs.realpathSync(templateReference);
+  _tryRegistering(generatorReference: string, packagePath?: string, namespace?: string) {
+    const realPath = fs.realpathSync(generatorReference);
 
     try {
-      debug('found %s, trying to register', templateReference);
+      debug('found %s, trying to register', generatorReference);
 
-      if (!namespace && realPath !== templateReference) {
-        namespace = this.namespace(templateReference);
+      if (!namespace && realPath !== generatorReference) {
+        namespace = this.namespace(generatorReference);
       }
 
       this.register(realPath, namespace!, packagePath);
       return true;
     } catch (error) {
-      console.error('Unable to register %s (Error: %s)', templateReference, error.message);
+      console.error('Unable to register %s (Error: %s)', generatorReference, error.message);
       return false;
     }
   };
@@ -442,7 +442,7 @@ export abstract class Resolver {
    *
    * @param {boolean|Object} [options]
    * @param {boolean} [options.localOnly = false] - Set true to skip lookups of
-   *                                               globally-installed templates.
+   *                                               globally-installed generators.
    * @param {boolean} [options.filterPaths = false] - Remove paths that don't ends
    *                       with a supported path (don't touch at NODE_PATH paths).
    * @return {Array} lookup paths
@@ -466,8 +466,8 @@ export abstract class Resolver {
    * Get or create an alias.
    *
    * Alias allows the `get()` and `lookup()` methods to search in alternate
-   * filepath for a given namespaces. It's used for example to map `template-*`
-   * npm package to their namespace equivalent (without the template- prefix),
+   * filepath for a given namespaces. It's used for example to map `gen-*`
+   * npm package to their namespace equivalent (without the gen- prefix),
    * or to default a single namespace like `angular` to `angular:app` or
    * `angular:all`.
    *
@@ -485,11 +485,11 @@ export abstract class Resolver {
    *
    * @example
    *
-   *     env.alias(/^([a-zA-Z0-9:\*]+)$/, 'template-$1');
+   *     env.alias(/^([a-zA-Z0-9:\*]+)$/, 'gen-$1');
    *     env.alias(/^([^:]+)$/, '$1:app');
    *     env.alias(/^([^:]+)$/, '$1:all');
    *     env.alias('foo');
-   *     // => template-foo:all
+   *     // => gen-foo:all
    */
   alias(match: string | RegExp, value: string);
   alias(match: string);

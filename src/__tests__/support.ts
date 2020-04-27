@@ -1,11 +1,10 @@
 import * as path from "path";
 import * as fs from "fs-extra";
-import spawn = require('cross-spawn');
 import * as assert from "assert";
 import toArray from "@tiopkg/utils/array/toArray";
 import * as execa from "execa";
 
-export function assertTemplate(real, resolved: string) {
+export function assertGenerator(real, resolved: string) {
   assert.ok(real);
   assert.equal(real.resolved, path.resolve(__dirname, resolved));
 }

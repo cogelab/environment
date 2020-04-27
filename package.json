@@ -1,7 +1,7 @@
 {
   "name": "coge-environment",
   "version": "0.3.3",
-  "description": "Handles lookups of templates in a specific environment",
+  "description": "Handles lookups of generators in a specific environment",
   "license": "MIT",
   "repository": "https://github.com/cogelab/coge-environment",
   "author": "",

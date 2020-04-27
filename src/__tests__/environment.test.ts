@@ -3,7 +3,7 @@ import assert = require('yeoman-assert');
 
 import {TerminalAdapter} from '../adapter';
 import {Environment} from '../environment';
-import {assertTemplate} from "./support";
+import {assertGenerator} from "./support";
 
 describe('Environment', () => {
   let env: Environment;
@@ -28,18 +28,18 @@ describe('Environment', () => {
 
   // describe.skip('#registerModulePath()', () => {
   //   it('resolves to a directory if no file type specified', function () {
-  //     const modulePath = path.join(__dirname, 'fixtures/template-scoped/package');
-  //     const specifiedJS = path.join(__dirname, 'fixtures/template-scoped/package/index.js');
-  //     const specifiedJSON = path.join(__dirname, 'fixtures/template-scoped/package.json');
-  //     const specifiedNode = path.join(__dirname, 'fixtures/template-scoped/package/nodefile.node');
+  //     const modulePath = path.join(__dirname, 'fixtures/gen-scoped/package');
+  //     const specifiedJS = path.join(__dirname, 'fixtures/gen-scoped/package/index.js');
+  //     const specifiedJSON = path.join(__dirname, 'fixtures/gen-scoped/package.json');
+  //     const specifiedNode = path.join(__dirname, 'fixtures/gen-scoped/package/nodefile.node');
   //
   //     assert.equal(specifiedJS, env.resolveModulePath(modulePath));
   //     assert.equal(specifiedJS, env.resolveModulePath(specifiedJS));
   //     assert.equal(specifiedJSON, env.resolveModulePath(specifiedJSON));
   //     assert.equal(specifiedNode, env.resolveModulePath(specifiedNode));
   //
-  //     const aModulePath = path.join(__dirname, 'fixtures/template-scoped/app');
-  //     const aSpecifiedJS = path.join(__dirname, 'fixtures/template-scoped/app/index.js');
+  //     const aModulePath = path.join(__dirname, 'fixtures/gen-scoped/app');
+  //     const aSpecifiedJS = path.join(__dirname, 'fixtures/gen-scoped/app/index.js');
   //     assert.equal(aSpecifiedJS, env.resolveModulePath(aModulePath));
   //   });
   // });
@@ -49,22 +49,22 @@ describe('Environment', () => {
     let extendPath: string;
 
     beforeEach(function () {
-      simplePath = path.join(__dirname, 'fixtures/template-simple');
-      extendPath = path.join(__dirname, './fixtures/template-extend/support');
+      simplePath = path.join(__dirname, 'fixtures/gen-simple');
+      extendPath = path.join(__dirname, './fixtures/gen-extend/support');
       assert.equal(env.namespaces().length, 0, 'env should be empty');
       env
-        .register(simplePath, 'fixtures:template-simple', simplePath)
+        .register(simplePath, 'fixtures:gen-simple', simplePath)
         .register(extendPath, 'scaffold');
     });
 
-    it('store registered templates', function () {
+    it('store registered generators', function () {
       assert.equal(env.namespaces().length, 2);
     });
 
-    it('determine registered Template namespace and resolved path', function () {
-      const simple = env.get('fixtures:template-simple');
+    it('determine registered Generator namespace and resolved path', function () {
+      const simple = env.get('fixtures:gen-simple');
       assert.ok(simple);
-      assert.ok(simple!.namespace, 'fixtures:template-simple');
+      assert.ok(simple!.namespace, 'fixtures:gen-simple');
       assert.ok(simple!.resolved, path.resolve(simplePath));
       assert.ok(simple!.packagePath, simplePath);
 
@@ -97,19 +97,19 @@ describe('Environment', () => {
 
     beforeEach(function () {
       env.alias(/^prefix-(.*)$/, '$1');
-      simplePath = path.join(__dirname, 'fixtures/template-simple');
+      simplePath = path.join(__dirname, 'fixtures/gen-simple');
       assert.equal(env.namespaces().length, 0, 'env should be empty');
       env
-        .register(simplePath, 'fixtures:template-simple', simplePath)
+        .register(simplePath, 'fixtures:gen-simple', simplePath)
         .register(simplePath, 'fixtures2', simplePath)
-        .register(simplePath, 'fixtures:template-simple2', 'new-path');
+        .register(simplePath, 'fixtures:gen-simple2', 'new-path');
     });
 
-    it('determine registered Template namespace and resolved path', function () {
-      assert.equal(env.getPackagePath('fixtures:template-simple'), simplePath);
+    it('determine registered Generator namespace and resolved path', function () {
+      assert.equal(env.getPackagePath('fixtures:gen-simple'), simplePath);
       assert.equal(env.getPackagePath('fixtures'), 'new-path');
       // With alias
-      assert.equal(env.getPackagePath('prefix-fixtures:template-simple'), env.getPackagePath('fixtures:template-simple'));
+      assert.equal(env.getPackagePath('prefix-fixtures:gen-simple'), env.getPackagePath('fixtures:gen-simple'));
       assert.equal(env.getPackagePath('prefix-fixtures'), env.getPackagePath('fixtures'));
       assert.deepEqual(env.getPackagePaths('prefix-fixtures'), env.getPackagePaths('fixtures'));
     });
@@ -118,9 +118,9 @@ describe('Environment', () => {
   describe('#namespaces()', () => {
     beforeEach(function () {
       env
-        .register(path.join(__dirname, './fixtures/template-simple'))
-        .register(path.join(__dirname, './fixtures/template-extend/support'))
-        .register(path.join(__dirname, './fixtures/template-extend/support'), 'support:scaffold');
+        .register(path.join(__dirname, './fixtures/gen-simple'))
+        .register(path.join(__dirname, './fixtures/gen-extend/support'))
+        .register(path.join(__dirname, './fixtures/gen-extend/support'), 'support:scaffold');
     });
 
     it('get the list of namespaces', function () {
@@ -128,31 +128,31 @@ describe('Environment', () => {
     });
   });
 
-  describe('#getTemplatesMeta()', () => {
-    let templatePath: string;
+  describe('#getGeneratorsMeta()', () => {
+    let generatorPath: string;
 
     beforeEach(function () {
-      templatePath = path.join(__dirname, './fixtures/template-simple');
-      env.register(templatePath);
+      generatorPath = path.join(__dirname, './fixtures/gen-simple');
+      env.register(generatorPath);
     });
 
-    it('get the registered Templates metadatas', function () {
-      const meta = env.getTemplates().simple;
-      assert.deepEqual(meta.resolved, templatePath);
+    it('get the registered Generators metadatas', function () {
+      const meta = env.getGenerators().simple;
+      assert.deepEqual(meta.resolved, generatorPath);
       assert.deepEqual(meta.namespace, 'simple');
     });
   });
 
-  describe('#getTemplateNames', () => {
-    let templatePath: string;
+  describe('#getGeneratorNames', () => {
+    let generatorPath: string;
 
     beforeEach(function () {
-      templatePath = path.join(__dirname, './fixtures/template-simple');
-      env.register(templatePath);
+      generatorPath = path.join(__dirname, './fixtures/gen-simple');
+      env.register(generatorPath);
     });
 
-    it('get the registered templates names', function () {
-      assert.deepEqual(env.getTemplateNames(), ['simple']);
+    it('get the registered generators names', function () {
+      assert.deepEqual(env.getGeneratorNames(), ['simple']);
     });
   });
 
@@ -165,17 +165,17 @@ describe('Environment', () => {
       assert.equal(env.namespace('backbone/app/index.js'), 'backbone:app');
       assert.equal(env.namespace('backbone.js'), 'backbone');
 
-      assert.equal(env.namespace('template-backbone/all.js'), 'backbone:all');
-      assert.equal(env.namespace('template-mocha/backbone/model/index.js'), 'mocha:backbone:model');
-      assert.equal(env.namespace('template-mocha/backbone/model.js'), 'mocha:backbone:model');
-      assert.equal(env.namespace('node_modules/template-mocha/backbone/model.js'), 'mocha:backbone:model');
+      assert.equal(env.namespace('gen-backbone/all.js'), 'backbone:all');
+      assert.equal(env.namespace('gen-mocha/backbone/model/index.js'), 'mocha:backbone:model');
+      assert.equal(env.namespace('gen-mocha/backbone/model.js'), 'mocha:backbone:model');
+      assert.equal(env.namespace('node_modules/gen-mocha/backbone/model.js'), 'mocha:backbone:model');
     });
 
     it('create namespace from scoped path', function () {
-      assert.equal(env.namespace('@dummyscope/template-backbone/all.js'), '@dummyscope/backbone:all');
-      assert.equal(env.namespace('@dummyscope/template-mocha/backbone/model/index.js'), '@dummyscope/mocha:backbone:model');
-      assert.equal(env.namespace('@dummyscope/template-mocha/backbone/model.js'), '@dummyscope/mocha:backbone:model');
-      assert.equal(env.namespace('/node_modules/@dummyscope/template-mocha/backbone/model.js'), '@dummyscope/mocha:backbone:model');
+      assert.equal(env.namespace('@dummyscope/gen-backbone/all.js'), '@dummyscope/backbone:all');
+      assert.equal(env.namespace('@dummyscope/gen-mocha/backbone/model/index.js'), '@dummyscope/mocha:backbone:model');
+      assert.equal(env.namespace('@dummyscope/gen-mocha/backbone/model.js'), '@dummyscope/mocha:backbone:model');
+      assert.equal(env.namespace('/node_modules/@dummyscope/gen-mocha/backbone/model.js'), '@dummyscope/mocha:backbone:model');
     });
 
     it('handle relative paths', function () {
@@ -187,9 +187,9 @@ describe('Environment', () => {
 
     it('handles weird paths', function () {
       assert.equal(env.namespace('////gen/all'), 'gen:all');
-      assert.equal(env.namespace('template-backbone///all.js'), 'backbone:all');
-      assert.equal(env.namespace('template-backbone/././all.js'), 'backbone:all');
-      assert.equal(env.namespace('template-backbone/template-backbone/all.js'), 'backbone:all');
+      assert.equal(env.namespace('gen-backbone///all.js'), 'backbone:all');
+      assert.equal(env.namespace('gen-backbone/././all.js'), 'backbone:all');
+      assert.equal(env.namespace('gen-backbone/gen-backbone/all.js'), 'backbone:all');
     });
 
     it('works with Windows\' paths', function () {
@@ -199,21 +199,21 @@ describe('Environment', () => {
     });
 
     it('remove lookups from namespace', function () {
-      assert.equal(env.namespace('backbone/templates/all/index.js'), 'backbone:all');
-      assert.equal(env.namespace('backbone/lib/templates/all/index.js'), 'backbone:all');
-      assert.equal(env.namespace('some-lib/templates/all/index.js'), 'some-lib:all');
-      assert.equal(env.namespace('my.thing/templates/app/index.js'), 'my.thing:app');
-      assert.equal(env.namespace('meta/templates/templates-thing/index.js'), 'meta:templates-thing');
+      assert.equal(env.namespace('backbone/generators/all/index.js'), 'backbone:all');
+      assert.equal(env.namespace('backbone/lib/generators/all/index.js'), 'backbone:all');
+      assert.equal(env.namespace('some-lib/generators/all/index.js'), 'some-lib:all');
+      assert.equal(env.namespace('my.thing/generators/app/index.js'), 'my.thing:app');
+      assert.equal(env.namespace('meta/generators/generators-thing/index.js'), 'meta:generators-thing');
     });
 
-    it('remove path before the template name', function () {
-      assert.equal(env.namespace('/Users/yeoman/.nvm/v0.10.22/lib/node_modules/template-backbone/all/index.js'), 'backbone:all');
-      assert.equal(env.namespace('/usr/lib/node_modules/template-backbone/all/index.js'), 'backbone:all');
+    it('remove path before the generator name', function () {
+      assert.equal(env.namespace('/Users/yeoman/.nvm/v0.10.22/lib/node_modules/gen-backbone/all/index.js'), 'backbone:all');
+      assert.equal(env.namespace('/usr/lib/node_modules/gen-backbone/all/index.js'), 'backbone:all');
     });
 
     it('handle paths when multiples lookups are in it', function () {
       assert.equal(
-        env.namespace('c:\\projects\\yeoman\\templates\\template-example\\templates\\app\\index.js'),
+        env.namespace('c:\\projects\\yeoman\\generators\\gen-example\\generators\\app\\index.js'),
         'example:app'
       );
     });
@@ -225,28 +225,28 @@ describe('Environment', () => {
   });
 
   describe('#get()', () => {
-    const template = path.resolve(path.join(__dirname, './fixtures/template-mocha'));
+    const generator = path.resolve(path.join(__dirname, './fixtures/gen-mocha'));
 
     beforeEach(function () {
       env
-        .register(template, 'mocha:template')
-        .register(template, 'fixtures:template-mocha');
+        .register(generator, 'mocha:generator')
+        .register(generator, 'fixtures:gen-mocha');
     });
 
-    it('get a specific template', function () {
-      assertTemplate(env.get('mocha:template'), template);
-      assertTemplate(env.get('fixtures:template-mocha'), template);
+    it('get a specific generator', function () {
+      assertGenerator(env.get('mocha:generator'), generator);
+      assertGenerator(env.get('fixtures:gen-mocha'), generator);
     });
 
     it('remove paths from namespace at resolution (for backward compatibility)', function () {
-      assertTemplate(env.get('mocha:template:/a/dummy/path/'), template);
-      assertTemplate(env.get('mocha:template:C:\\foo\\bar'), template);
+      assertGenerator(env.get('mocha:generator:/a/dummy/path/'), generator);
+      assertGenerator(env.get('mocha:generator:C:\\foo\\bar'), generator);
     });
 
-    it('fallback to requiring template from a file path', function () {
-      assertTemplate(
-        env.get(path.join(__dirname, './fixtures/template-mocha')),
-        template
+    it('fallback to requiring generator from a file path', function () {
+      assertGenerator(
+        env.get(path.join(__dirname, './fixtures/gen-mocha')),
+        generator
       );
     });
 
@@ -256,8 +256,8 @@ describe('Environment', () => {
     });
 
     it('works with modules', function () {
-      env.register(path.join(__dirname, './fixtures/template-module/templates/app'), 'fixtures:template-module');
-      assertTemplate(env.get('fixtures:template-module'), path.join(__dirname, './fixtures/template-module/templates/app'));
+      env.register(path.join(__dirname, './fixtures/gen-module/generators/app'), 'fixtures:gen-module');
+      assertGenerator(env.get('fixtures:gen-module'), path.join(__dirname, './fixtures/gen-module/generators/app'));
     });
   });
 
@@ -268,9 +268,9 @@ describe('Environment', () => {
     });
 
     it('apply multiple regex', function () {
-      env.alias(/^([a-zA-Z0-9:*]+)$/, 'template-$1');
+      env.alias(/^([a-zA-Z0-9:*]+)$/, 'gen-$1');
       env.alias(/^([^:]+)$/, '$1:app');
-      assert.equal(env.alias('foo'), 'template-foo:app');
+      assert.equal(env.alias('foo'), 'gen-foo:app');
     });
 
     it('apply latest aliases first', function () {
@@ -286,27 +286,27 @@ describe('Environment', () => {
     it('alias removing prefix- from namespaces', function () {
       env.alias(/^(@.*\/)?prefix-(.*)$/, '$1$2');
       assert.equal(env.alias('prefix-foo'), 'foo:app');
-      assert.equal(env.alias('prefix-mocha:template'), 'mocha:template');
-      assert.equal(env.alias('prefix-fixtures:template-mocha'), 'fixtures:template-mocha');
-      assert.equal(env.alias('@scoped/prefix-fixtures:template-mocha'), '@scoped/fixtures:template-mocha');
+      assert.equal(env.alias('prefix-mocha:generator'), 'mocha:generator');
+      assert.equal(env.alias('prefix-fixtures:gen-mocha'), 'fixtures:gen-mocha');
+      assert.equal(env.alias('@scoped/prefix-fixtures:gen-mocha'), '@scoped/fixtures:gen-mocha');
     });
   });
 
   describe('#get() with #alias()', () => {
-    let template;
+    let generator;
     beforeEach(function () {
-      template = path.join(__dirname, './fixtures/template-mocha');
+      generator = path.join(__dirname, './fixtures/gen-mocha');
       env.alias(/^prefix-(.*)$/, '$1');
       env
-        .register(template, 'fixtures:template-mocha')
-        .register(template, 'mocha:template');
+        .register(generator, 'fixtures:gen-mocha')
+        .register(generator, 'mocha:generator');
     });
 
-    it('get a specific template', function () {
-      assertTemplate(env.get('prefix-mocha:template'), template);
-      assertTemplate(env.get('mocha:template'), template);
-      assertTemplate(env.get('prefix-fixtures:template-mocha'), template);
-      assertTemplate(env.get('fixtures:template-mocha'), template);
+    it('get a specific generator', function () {
+      assertGenerator(env.get('prefix-mocha:generator'), generator);
+      assertGenerator(env.get('mocha:generator'), generator);
+      assertGenerator(env.get('prefix-fixtures:gen-mocha'), generator);
+      assertGenerator(env.get('fixtures:gen-mocha'), generator);
     });
   });
 
@@ -331,7 +331,7 @@ describe('Environment', () => {
 
   describe('.namespaceToName()', () => {
     it('convert a namespace to a name', () => {
-      const name = Environment.namespaceToName('mocha:template');
+      const name = Environment.namespaceToName('mocha:generator');
       assert.equal(name, 'mocha');
     });
   });

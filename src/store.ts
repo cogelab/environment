@@ -1,4 +1,4 @@
-import {Templates} from "./types";
+import {Generators} from "./types";
 
 const debug = require('debug')('coge:environment:store');
 
@@ -10,12 +10,12 @@ const debug = require('debug')('coge:environment:store');
  * @private
  */
 export class Store {
-  _templates: Templates;
+  _generators: Generators;
   _packagesPaths: { [name: string]: string[] };
   _packagesNS: string[];
 
   constructor() {
-    this._templates = {};
+    this._generators = {};
     // Store packages paths by ns
     this._packagesPaths = {};
     // Store packages ns
@@ -25,15 +25,15 @@ export class Store {
   /**
    * Store a module under the namespace key
    * @param {String} namespace  - The key under which the generator can be retrieved
-   * @param {String} template  - A generator module or a module path
+   * @param {String} generator  - A generator module or a module path
    * @param {String} packagePath - PackagePath to the generator npm package (optional)
    */
-  add(namespace: string, template: string, packagePath?: string) {
-    this._storeAsPath(namespace, template, packagePath);
+  add(namespace: string, generator: string, packagePath?: string) {
+    this._storeAsPath(namespace, generator, packagePath);
   }
 
   _storeAsPath(namespace, path, packagePath) {
-    this._templates[namespace] = {
+    this._generators[namespace] = {
       resolved: path,
       namespace,
       packagePath
@@ -46,7 +46,7 @@ export class Store {
    * @return {Module}
    */
   get(namespace) {
-    return this._templates[namespace];
+    return this._generators[namespace];
   }
 
   /**
@@ -54,15 +54,15 @@ export class Store {
    * @return {Array} Namespaces array
    */
   namespaces() {
-    return Object.keys(this._templates);
+    return Object.keys(this._generators);
   }
 
   /**
    * Get the stored generators meta data
    * @return {Object} Generators metadata
    */
-  getTemplates() {
-    return this._templates;
+  getGenerators() {
+    return this._generators;
   }
 
   /**

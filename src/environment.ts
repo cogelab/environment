@@ -14,19 +14,19 @@ import {Store} from "./store";
 import {ReadStream, WriteStream} from "tty";
 import escapeRegExp from "@tiopkg/utils/string/escapeRegExp";
 import toArray from "@tiopkg/utils/array/toArray";
-import {Template} from "./types";
+import {Generator} from "./types";
 
 const debug = require('debug')('coge:environment');
 
 /**
- * Hint of template module name
+ * Hint of generator module name
  */
-function getTemplateHint(namespace) {
+function getGeneratorHint(namespace) {
   if (isScoped(namespace)) {
     const splitName = namespace.split('/');
-    return `${splitName[0]}/template-${splitName[1]}`;
+    return `${splitName[0]}/gen-${splitName[1]}`;
   }
-  return `template-${namespace}`;
+  return `gen-${namespace}`;
 }
 
 export interface EnvironmentOptions {
@@ -37,11 +37,11 @@ export interface EnvironmentOptions {
   cwd?: string;
 }
 
-export interface LookupTemplateOptions extends PackageLookupOptions {
+export interface LookupGeneratorOptions extends PackageLookupOptions {
   singleResult?: boolean;
   multiple?: boolean;
   packagePath?: boolean;
-  templatePath?: boolean;
+  generatorPath?: boolean;
 }
 
 export class Environment extends Resolver {
@@ -53,12 +53,12 @@ export class Environment extends Resolver {
   store: Store;
 
   static get lookups() {
-    return ['.', 'templates', 'lib/templates'];
+    return ['.', 'generators', 'lib/generators'];
   }
 
   /**
    * Make sure the Environment present expected methods if an old version is
-   * passed to a Template.
+   * passed to a Generator.
    * @param  {Environment} env
    * @return {Environment} The updated env
    */
@@ -83,7 +83,7 @@ export class Environment extends Resolver {
   }
 
   /**
-   * Convert a templates namespace to its name
+   * Convert a generators namespace to its name
    *
    * @param  {String} namespace
    * @return {String}
@@ -93,34 +93,34 @@ export class Environment extends Resolver {
   }
 
   /**
-   * Lookup for a specific template.
+   * Lookup for a specific generator.
    *
    * @param  {String} namespace
    * @param  {Object} [options]
    * @param {Boolean} [options.localOnly=false] - Set true to skip lookups of
-   *                                                     globally-installed templates.
+   *                                                     globally-installed generators.
    * @param {Boolean} [options.packagePath=false] - Set true to return the package
-   *                                                       path instead of templates file.
+   *                                                       path instead of generators file.
    * @param {Boolean} [options.singleResult=true] - Set false to return multiple values.
-   * @return {String} template
+   * @return {String} generator
    */
-  static lookupTemplate(namespace: string, options: Partial<LookupTemplateOptions> | boolean = {singleResult: true}): string | string[] {
-    let opts: LookupTemplateOptions;
+  static lookupGenerator(namespace: string, options: Partial<LookupGeneratorOptions> | boolean = {singleResult: true}): string | string[] {
+    let opts: LookupGeneratorOptions;
     if (typeof options === 'boolean') {
-      opts = <LookupTemplateOptions>{singleResult: true, localOnly: options};
+      opts = <LookupGeneratorOptions>{singleResult: true, localOnly: options};
     } else {
       // Keep compatibility with opts.multiple
-      opts = <LookupTemplateOptions>{singleResult: !options.multiple, ...options};
+      opts = <LookupGeneratorOptions>{singleResult: !options.multiple, ...options};
     }
 
     opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/template.toml'));
 
     const name = Environment.namespaceToName(namespace);
-    opts.packagePatterns = opts.packagePatterns || getTemplateHint(name);
+    opts.packagePatterns = opts.packagePatterns || getGeneratorHint(name);
 
     opts.npmPaths = opts.npmPaths || this.packageLookup.getNpmPaths(opts.localOnly).reverse();
     if (!Array.isArray(opts.npmPaths)) opts.npmPaths = [opts.npmPaths];
-    opts.packagePatterns = opts.packagePatterns || 'template-*';
+    opts.packagePatterns = opts.packagePatterns || 'gen-*';
     opts.packagePaths = opts.packagePaths || this.packageLookup.findPackagesIn(opts.npmPaths, opts);
 
     let paths: string[] = [];
@@ -129,7 +129,7 @@ export class Environment extends Resolver {
       const fileNS = this.namespace(filename, Environment.lookups);
       if (namespace === fileNS || (opts.packagePath && namespace === Environment.namespaceToName(fileNS))) {
         // Version 2.6.0 returned pattern instead of modulePath for opts.packagePath
-        const returnPath = opts.packagePath ? module.packagePath : (opts.templatePath ? path.posix.join(filename, '../../') : filename);
+        const returnPath = opts.packagePath ? module.packagePath : (opts.generatorPath ? path.posix.join(filename, '../../') : filename);
         paths.push(returnPath);
         if (opts.singleResult) {
           return true;
@@ -149,13 +149,13 @@ export class Environment extends Resolver {
    *     this.namespace('backbone/all/index.js');
    *     // => backbone:all
    *
-   *     this.namespace('template-backbone/model');
+   *     this.namespace('gen-backbone/model');
    *     // => backbone:model
    *
    *     this.namespace('backbone.js');
    *     // => backbone
    *
-   *     this.namespace('template-mocha/backbone/model/index.js');
+   *     this.namespace('gen-mocha/backbone/model/index.js');
    *     // => mocha:backbone:model
    *
    * @param {String} filepath
@@ -185,8 +185,8 @@ export class Environment extends Resolver {
 
     // Cleanup `ns` from unwanted parts and then normalize slashes to `:`
     ns = ns
-      .replace(/(.*template-)/, '') // Remove before `template-`
-      .replace(/[/\\](coge|template|index|main)$/, '') // Remove `/coge`, `template`, `/index` or `/main`
+      .replace(/(.*gen-)/, '') // Remove before `gen-`
+      .replace(/[/\\](coge|template|index|main)$/, '') // Remove `/coge`, `/template`, `/index` or `/main`
       .replace(/^[/\\]+/, '') // Remove leading `/`
       .replace(/[/\\]+/g, ':'); // Replace slashes by `:`
 
@@ -202,10 +202,10 @@ export class Environment extends Resolver {
 
   /**
    * @classdesc `Environment` object is responsible of handling the lifecyle and bootstrap
-   * of templates in a specific environment (your app).
+   * of generators in a specific environment (your app).
    *
-   * It provides a high-level API to create and run templates, as well as further
-   * tuning where and how a template is resolved.
+   * It provides a high-level API to create and run generators, as well as further
+   * tuning where and how a generator is resolved.
    *
    * An environment is created using a list of `arguments` and a Hash of
    * `options`. Usually, this is the list of arguments you get back from your CLI
@@ -243,12 +243,12 @@ export class Environment extends Resolver {
   }
 
   /**
-   * Registers a specific `template` to this environment. This template is stored under
+   * Registers a specific `generator` to this environment. This generator is stored under
    * provided namespace, or a default namespace format if none if available.
    *
-   * @param  {String} name      - Filepath to the a template or a npm package name
-   * @param  {String} namespace - Namespace under which register the template (optional)
-   * @param  {String} packagePath - PackagePath to the template npm package (optional)
+   * @param  {String} name      - Filepath to the a generator or a npm package name
+   * @param  {String} namespace - Namespace under which register the generator (optional)
+   * @param  {String} packagePath - PackagePath to the generator npm package (optional)
    * @return {Object} environment - This environment
    */
   register(name: string, namespace?: string, packagePath?: string) {
@@ -259,7 +259,7 @@ export class Environment extends Resolver {
       throw new Error('Unable to determine namespace.');
     }
 
-    // Template is already registered and matches the current namespace.
+    // Generator is already registered and matches the current namespace.
     const tpl = this.store.get(namespace);
     if (tpl && tpl.resolved === modulePath) {
       return this;
@@ -285,27 +285,27 @@ export class Environment extends Resolver {
   }
 
   /**
-   * Returns stored templates meta
+   * Returns stored generators meta
    * @return {Object}
    */
-  getTemplates() {
-    return this.store.getTemplates();
+  getGenerators() {
+    return this.store.getGenerators();
   }
 
   /**
-   * Get registered templates names
+   * Get registered generators names
    *
    * @return {Array}
    */
-  getTemplateNames() {
-    return uniq(Object.keys(this.getTemplates()).map(Environment.namespaceToName));
+  getGeneratorNames() {
+    return uniq(Object.keys(this.getGenerators()).map(Environment.namespaceToName));
   }
 
   /**
    * Verify if a package namespace already have been registered.
    *
    * @param  {String} [packageNS] - namespace of the package.
-   * @return {boolean} - true if any template of the package has been registered
+   * @return {boolean} - true if any generator of the package has been registered
    */
   isPackageRegistered(packageNS) {
     return this.getRegisteredPackages().includes(packageNS);
@@ -328,8 +328,8 @@ export class Environment extends Resolver {
    */
   getPackagePath(namespace): string | undefined {
     if (namespace.includes(':')) {
-      const template = this.get(namespace);
-      return template?.packagePath;
+      const generator = this.get(namespace);
+      return generator?.packagePath;
     }
     const packagePaths = this.getPackagePaths(namespace) || [];
     return packagePaths[0];
@@ -347,16 +347,16 @@ export class Environment extends Resolver {
   }
 
   /**
-   * Get a single template from the registered list of templates. The lookup is
-   * based on template's namespace, "walking up" the namespaces until a matching
+   * Get a single generator from the registered list of generators. The lookup is
+   * based on generator's namespace, "walking up" the namespaces until a matching
    * is found. Eg. if an `angular:common` namespace is registered, and we try to
    * get `angular:common:all` then we get `angular:common` as a fallback (unless
-   * an `angular:common:all` template is registered).
+   * an `angular:common:all` generator is registered).
    *
    * @param  {String} namespaceOrPath
-   * @return {Template|null} - the template registered under the namespace
+   * @return {Generator|null} - the generator registered under the namespace
    */
-  get(namespaceOrPath?: string): Template | undefined {
+  get(namespaceOrPath?: string): Generator | undefined {
     // Stop the recursive search if nothing is left
     if (!namespaceOrPath) {
       return;
@@ -364,14 +364,14 @@ export class Environment extends Resolver {
 
     // const parsed = this.toNamespace ? this.toNamespace(namespaceOrPath) : undefined;
     // if (parsed && this.getByNamespace) {
-    //   let template = this.getByNamespace(parsed);
+    //   let generator = this.getByNamespace(parsed);
     //
-    //   if (!template && parsed.flags) {
+    //   if (!generator && parsed.flags) {
     //     this.prepareEnvironment(parsed);
-    //     template = this.getByNamespace(parsed);
+    //     generator = this.getByNamespace(parsed);
     //   }
     //
-    //   return template;
+    //   return generator;
     // }
 
     let namespace = namespaceOrPath;
@@ -391,17 +391,17 @@ export class Environment extends Resolver {
 
     return this.store.get(namespace) ||
       this.store.get(this.alias(namespace)) ||
-      // Namespace is empty if namespaceOrPath contains a win32 absolute path of the form 'C:\path\to\template'.
+      // Namespace is empty if namespaceOrPath contains a win32 absolute path of the form 'C:\path\to\generator'.
       // for this reason we pass namespaceOrPath to the getByPath function.
       this.getByPath(namespaceOrPath);
   }
 
   /**
-   * Get a template by path instead of namespace.
+   * Get a generator by path instead of namespace.
    * @param  {String} path
-   * @return {Template|null} - the template found at the location
+   * @return {Generator|null} - the generator found at the location
    */
-  getByPath(path): Template | undefined {
+  getByPath(path): Generator | undefined {
     if (fs.existsSync(path)) {
       const namespace = this.namespace(path);
       this.register(path, namespace);
@@ -418,13 +418,13 @@ export class Environment extends Resolver {
    *     this.namespace('backbone/all/index.js');
    *     // => backbone:all
    *
-   *     this.namespace('template-backbone/model');
+   *     this.namespace('gen-backbone/model');
    *     // => backbone:model
    *
    *     this.namespace('backbone.js');
    *     // => backbone
    *
-   *     this.namespace('template-mocha/backbone/model/index.js');
+   *     this.namespace('gen-mocha/backbone/model/index.js');
    *     // => mocha:backbone:model
    *
    * @param {String} filepath

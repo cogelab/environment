@@ -239,9 +239,9 @@ function chalkish(parts: TemplateStringsArray, ...substitutions) {
     }
   }
 
-  // Now that we have all the template parts and the value substitutions from the
+  // Now that we have all the generator parts and the value substitutions from the
   // original string, we can build the SINGLE value that we pass onto chalk. This
-  // will cause chalk to evaluate the original template as if it were a static
+  // will cause chalk to evaluate the original generator as if it were a static
   // string (rather than a set of value substitutions).
   const chalkParts: any = [cookedResults.join("")];
   chalkParts.raw = [rawResults.join("")];

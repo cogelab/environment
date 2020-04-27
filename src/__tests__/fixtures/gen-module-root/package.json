@@ -1,8 +1,7 @@
 {
   "author": "",
-  "name": "template-simple",
+  "name": "gen-module",
   "version": "0.0.0",
-  "main": "index.js",
   "dependencies": {},
   "devDependencies": {},
   "optionalDependencies": {},
