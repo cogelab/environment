@@ -3,7 +3,7 @@ export interface Meta {
   resolved: string;
   namespace: string;
   packagePath: string;
-  templatePath: string;
+  templateDir: string;
 }
 
 export interface Metas {
