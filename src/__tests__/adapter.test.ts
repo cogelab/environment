@@ -1,10 +1,9 @@
-import assert = require('yeoman-assert');
 import inquirer = require('inquirer');
 import sinon = require('sinon');
 import stripAnsi = require('strip-ansi');
 import logSymbols = require("log-symbols");
-import {TerminalAdapter} from '../adapter';
 import * as chalk from "chalk";
+import {TerminalAdapter} from '../adapter';
 
 describe('TerminalAdapter', () => {
   let adapter: TerminalAdapter;
@@ -31,12 +30,12 @@ describe('TerminalAdapter', () => {
     });
 
     it('pass its arguments to inquirer', function () {
-      const questions = [];
+      const questions = [];``
       const func = () => {};
       const ret = adapter.prompt(questions, func);
       sinon.assert.calledWith(stub, questions);
       sinon.assert.calledWith(fakePromise.then, func);
-      assert.equal(ret, fakePromise);
+      expect(ret).toBe(fakePromise);
     });
 
     it('pass its arguments with answers to inquirer', function () {
@@ -46,7 +45,7 @@ describe('TerminalAdapter', () => {
       const ret = adapter.prompt(questions, answers, func);
       sinon.assert.calledWith(stub, questions, answers);
       sinon.assert.calledWith(fakePromise.then, func);
-      assert.equal(ret, fakePromise);
+      expect(ret).toBe(fakePromise);
     });
   });
 
@@ -55,7 +54,7 @@ describe('TerminalAdapter', () => {
       const questions = [];
       const answers = {prompt1: 'foo'};
       adapter.prompt(questions, answers).then(ret => {
-        assert.equal(ret.prompt1, answers.prompt1);
+        expect(ret.prompt1).toBe(answers.prompt1);
         done();
       });
     });
@@ -64,7 +63,7 @@ describe('TerminalAdapter', () => {
   describe('#diff()', () => {
     it('returns properly colored diffs', function () {
       const diff = adapter.diff('var', 'let');
-      assert.textEqual(stripAnsi(diff), '\nremoved added\n\nvarlet\n');
+      expect(stripAnsi(diff)).toEqual('\nremoved added\n\nvarlet\n');
     });
   });
 
@@ -97,26 +96,26 @@ describe('TerminalAdapter', () => {
         many: 'many',
         reps: 'reps'
       });
-      assert(spyerror.withArgs('has many reps').calledOnce);
-      assert.equal(stripAnsi(logMessage), 'has many reps\n');
+      expect(spyerror.withArgs('has many reps').calledOnce).toBeTruthy();
+      expect(stripAnsi(logMessage)).toBe('has many reps\n');
     });
 
     it('substitutes strings correctly when context argument is falsey', function () {
       adapter.logger.log('Zero = %d, One = %s', 0, 1);
-      assert(spyerror.calledOnce);
-      assert.equal(stripAnsi(logMessage), 'Zero = 0, One = 1\n');
+      expect(spyerror.calledOnce).toBeTruthy();
+      expect(stripAnsi(logMessage)).toBe('Zero = 0, One = 1\n');
     });
 
     it('boolean values', function () {
       adapter.logger.log(true);
-      assert(spyerror.withArgs(true).calledOnce);
-      assert.equal(stripAnsi(logMessage), 'true\n');
+      expect(spyerror.withArgs(true).calledOnce).toBeTruthy();
+      expect(stripAnsi(logMessage)).toBe('true\n');
     });
 
     it('#write() numbers', function () {
       adapter.logger.log(42);
-      assert(spyerror.withArgs(42).calledOnce);
-      assert.equal(stripAnsi(logMessage), '42\n');
+      expect(spyerror.withArgs(42).calledOnce).toBeTruthy();
+      expect(stripAnsi(logMessage)).toBe('42\n');
     });
 
     it('#write() objects', function () {
@@ -126,11 +125,8 @@ describe('TerminalAdapter', () => {
       };
 
       adapter.logger.log(outputObject);
-      assert(spyerror.withArgs(outputObject).calledOnce);
-      assert.equal(
-        stripAnsi(logMessage),
-        '{ something: 72, another: 12 }\n'
-      );
+      expect(spyerror.withArgs(outputObject).calledOnce).toBeTruthy();
+      expect(stripAnsi(logMessage)).toBe('{ something: 72, another: 12 }\n');
     });
   });
 
@@ -148,33 +144,33 @@ describe('TerminalAdapter', () => {
     it('#write() pass strings as they are', function () {
       const testString = 'dummy';
       adapter.logger.write(testString);
-      assert(spylog.withArgs(testString).calledOnce);
+      expect(spylog.withArgs(testString).calledOnce).toBeTruthy();
     });
 
     it('#write() accepts util#format style arguments', function () {
       adapter.logger.write('A number: %d, a string: %s', 1, 'bla');
-      assert(spylog.withArgs('A number: 1, a string: bla').calledOnce);
+      expect(spylog.withArgs('A number: 1, a string: bla').calledOnce).toBeTruthy();
     });
 
     it('#writeln() adds a \\n at the end', function () {
       adapter.logger.writeln('dummy');
-      assert(spylog.withArgs('dummy').calledOnce);
-      assert(spylog.withArgs('\n').calledOnce);
+      expect(spylog.withArgs('dummy').calledOnce).toBeTruthy();
+      expect(spylog.withArgs('\n').calledOnce).toBeTruthy();
     });
 
     it('#colorful() writes colorful texts', function () {
       adapter.logger.colorful('{green dummy}');
-      assert(spylog.withArgs(`${chalk.green('dummy')}\n`).calledOnce);
+      expect(spylog.withArgs(`${chalk.green('dummy')}\n`).calledOnce).toBeTruthy();
     });
 
     it('#ok() adds a green "✔ " at the beginning and \\n at the end', function () {
       adapter.logger.ok('dummy');
-      assert(spylog.withArgs(`${logSymbols.success} dummy\n`).calledOnce);
+      expect(spylog.withArgs(`${logSymbols.success} dummy\n`).calledOnce).toBeTruthy();
     });
 
     it('#error() adds a green "✗ " at the beginning and \\n at the end', function () {
       adapter.logger.error('dummy');
-      assert(spylog.withArgs(`${logSymbols.error} dummy\n`).calledOnce);
+      expect(spylog.withArgs(`${logSymbols.error} dummy\n`).calledOnce);
     });
   });
 });

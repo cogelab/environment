@@ -14,7 +14,7 @@ import {Store} from "./store";
 import {ReadStream, WriteStream} from "tty";
 import escapeRegExp from "@tiopkg/utils/string/escapeRegExp";
 import toArray from "@tiopkg/utils/array/toArray";
-import {Generator} from "./types";
+import {Meta} from "./types";
 
 const debug = require('debug')('coge:environment');
 
@@ -289,7 +289,7 @@ export class Environment extends Resolver {
    * @return {Object}
    */
   getGenerators() {
-    return this.store.getGenerators();
+    return this.store.getMetas();
   }
 
   /**
@@ -354,9 +354,9 @@ export class Environment extends Resolver {
    * an `angular:common:all` generator is registered).
    *
    * @param  {String} namespaceOrPath
-   * @return {Generator|null} - the generator registered under the namespace
+   * @return {Meta|null} - the generator registered under the namespace
    */
-  get(namespaceOrPath?: string): Generator | undefined {
+  get(namespaceOrPath?: string): Meta | undefined {
     // Stop the recursive search if nothing is left
     if (!namespaceOrPath) {
       return;
@@ -399,9 +399,9 @@ export class Environment extends Resolver {
   /**
    * Get a generator by path instead of namespace.
    * @param  {String} path
-   * @return {Generator|null} - the generator found at the location
+   * @return {Meta|null} - the generator found at the location
    */
-  getByPath(path): Generator | undefined {
+  getByPath(path): Meta | undefined {
     if (fs.existsSync(path)) {
       const namespace = this.namespace(path);
       this.register(path, namespace);

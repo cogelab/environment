@@ -1,10 +1,10 @@
 
-export interface Generator {
+export interface Meta {
   resolved: string;
   namespace: string;
   packagePath: string;
 }
 
-export interface Generators {
-  [ns: string]: Generator;
+export interface Metas {
+  [ns: string]: Meta;
 }

@@ -68,20 +68,20 @@ describe('Environment Resolver', function () {
 
     beforeEach(function () {
       env = new Environment();
-      assert.equal(env.namespaces().length, 0, 'ensure env is empty');
+      expect(env.namespaces().length).toBe(0);
       env.lookup(lookupOptions);
     });
 
     it('register local generators', function () {
-      assert.ok(env.get('dummy:app'));
-      assert.ok(env.get('dummy:coge'));
+      expect(env.get('dummy:app')).toBeTruthy();
+      expect(env.get('dummy:coge')).toBeTruthy();
 
-      assert.ok(env.get('dummy:app').packagePath.endsWith('node_modules/gen-dummy'));
-      assert.ok(env.get('dummy:app').packagePath.endsWith('node_modules/gen-dummy'));
+      expect(env.get('dummy:app').packagePath.endsWith('node_modules/gen-dummy')).toBeTruthy();
+      expect(env.get('dummy:app').packagePath.endsWith('node_modules/gen-dummy')).toBeTruthy();
     }, 60000);
 
     it('registers local ts generators', function () {
-      assert.ok(env.get('ts:app'));
+      expect(env.get('ts:app')).toBeTruthy();
     });
 
     it('js generators takes precedence', function () {
@@ -89,11 +89,11 @@ describe('Environment Resolver', function () {
     });
 
     it('register generators in scoped packages', function () {
-      assert.ok(env.get('@dummyscope/scoped:app'));
+      expect(env.get('@dummyscope/scoped:app')).toBeTruthy();
     });
 
     it('register non-dependency local generator', function () {
-      assert.ok(env.get('jquery:app'));
+      expect(env.get('jquery:app')).toBeTruthy();
     });
 
     if (!process.env.NODE_PATH) {
@@ -102,16 +102,16 @@ describe('Environment Resolver', function () {
 
     it('local generators prioritized over global', function () {
       const {resolved} = env.get('dummy:app');
-      assert.ok(resolved.includes('lookup-project'), `Couldn't find 'lookup-project' in ${resolved}`);
+      expect(resolved.includes('lookup-project')).toBeTruthy();
     });
 
     globalLookupTest('register global generators', function () {
-      assert.ok(env.get('dummytest:app'));
-      assert.ok(env.get('dummytest:controller'));
+      expect(env.get('dummytest:app')).toBeTruthy();
+      expect(env.get('dummytest:controller')).toBeTruthy();
     });
 
     it('register symlinked generators', function () {
-      assert.ok(env.get('extend:support'));
+      expect(env.get('extend:support')).toBeTruthy();
     });
 
     describe('when there\'s ancestor node_modules/ folder', () => {
@@ -125,17 +125,17 @@ describe('Environment Resolver', function () {
 
       beforeEach(function () {
         env = new Environment();
-        assert.equal(env.namespaces().length, 0, 'ensure env is empty');
+        expect(env.namespaces().length).toBe(0);
         env.lookup();
       });
 
       it('register generators in ancestor node_modules directory', function () {
-        assert.ok(env.get('jquery:app'));
+        expect(env.get('jquery:app')).toBeTruthy();
       });
 
       it('local generators are prioritized over ancestor', function () {
         const resolved = env.get('dummy:app').resolved;
-        assert.ok(resolved.includes('subdir'), `Couldn't find 'subdir' in ${resolved}`);
+        expect(resolved.includes('subdir')).toBeTruthy();
       });
     });
 
@@ -164,15 +164,15 @@ describe('Environment Resolver', function () {
       });
 
       it('register local generators', function () {
-        assert.ok(env.get('dummy:app'));
-        assert.ok(env.get('dummy:coge'));
+        expect(env.get('dummy:app')).toBeTruthy();
+        expect(env.get('dummy:coge')).toBeTruthy();
 
-        assert.ok(env.get('dummy:app').packagePath.endsWith('/gen-dummy'));
-        assert.ok(env.get('dummy:app').packagePath.endsWith('/gen-dummy'));
+        expect(env.get('dummy:app').packagePath.endsWith('/gen-dummy')).toBeTruthy();
+        expect(env.get('dummy:app').packagePath.endsWith('/gen-dummy')).toBeTruthy();
       });
 
       it('registers local ts generators', function () {
-        assert.ok(env.get('ts:app'));
+        expect(env.get('ts:app')).toBeTruthy();
       });
 
       it('js generators takes precedence', function () {
@@ -181,7 +181,7 @@ describe('Environment Resolver', function () {
       });
 
       it('register generators in scoped packages', function () {
-        assert.ok(env.get('@dummyscope/scoped:app'));
+        expect(env.get('@dummyscope/scoped:app')).toBeTruthy();
       });
 
       if (!process.env.NODE_PATH) {
@@ -190,72 +190,72 @@ describe('Environment Resolver', function () {
 
       it('local generators prioritized over global', function () {
         const resolved = env.get('dummy:app').resolved;
-        assert.ok(resolved.includes('orig'), `Couldn't find 'lookup-project' in ${resolved}`);
+        expect(resolved.includes('orig')).toBeTruthy();
       });
 
       it('register symlinked generators', function () {
-        assert.ok(env.get('extend:support'));
+        expect(env.get('extend:support')).toBeTruthy();
       });
     });
 
     describe('when localOnly argument is true', () => {
       beforeEach(function () {
         env = new Environment();
-        assert.equal(env.namespaces().length, 0, 'ensure env is empty');
+        expect(env.namespaces().length).toBe(0);
         env.lookup(true);
       });
 
       it('register local generators', function () {
-        assert.ok(env.get('dummy:app'));
-        assert.ok(env.get('dummy:coge'));
-        assert.ok(env.isPackageRegistered('dummy'));
+        expect(env.get('dummy:app')).toBeTruthy();
+        expect(env.get('dummy:coge')).toBeTruthy();
+        expect(env.isPackageRegistered('dummy')).toBeTruthy();
       });
 
       it('register generators in scoped packages', function () {
-        assert.ok(env.get('@dummyscope/scoped:app'));
+        expect(env.get('@dummyscope/scoped:app')).toBeTruthy();
       });
 
       it('register non-dependency local generator', function () {
-        assert.ok(env.get('jquery:app'));
+        expect(env.get('jquery:app')).toBeTruthy();
       });
 
       it('register symlinked generators', function () {
-        assert.ok(env.get('extend:support'));
+        expect(env.get('extend:support')).toBeTruthy();
       });
 
       globalLookupTest('does not register global generators', function () {
-        assert.ok(!env.get('dummytest:app'));
-        assert.ok(!env.get('dummytest:controller'));
+        expect(!env.get('dummytest:app')).toBeTruthy();
+        expect(!env.get('dummytest:controller')).toBeTruthy();
       });
     });
 
     describe('when options.localOnly argument is true', () => {
       beforeEach(function () {
         env = new Environment();
-        assert.equal(env.namespaces().length, 0, 'ensure env is empty');
+        expect(env.namespaces().length).toBe(0);
         env.lookup({localOnly: true});
       });
 
       it('register local generators', function () {
-        assert.ok(env.get('dummy:app'));
-        assert.ok(env.get('dummy:coge'));
+        expect(env.get('dummy:app')).toBeTruthy();
+        expect(env.get('dummy:coge')).toBeTruthy();
       });
 
       it('register generators in scoped packages', function () {
-        assert.ok(env.get('@dummyscope/scoped:app'));
+        expect(env.get('@dummyscope/scoped:app')).toBeTruthy();
       });
 
       it('register non-dependency local generator', function () {
-        assert.ok(env.get('jquery:app'));
+        expect(env.get('jquery:app')).toBeTruthy();
       });
 
       it('register symlinked generators', function () {
-        assert.ok(env.get('extend:support'));
+        expect(env.get('extend:support')).toBeTruthy();
       });
 
       globalLookupTest('does not register global generators', function () {
-        assert.ok(!env.get('dummytest:app'));
-        assert.ok(!env.get('dummytest:controller'));
+        expect(!env.get('dummytest:app')).toBeTruthy();
+        expect(!env.get('dummytest:controller')).toBeTruthy();
       });
     });
   });
@@ -308,8 +308,8 @@ describe('Environment Resolver', function () {
           'node_modules/gen-module'
         ]
       });
-      assert.ok(env.get('module:app'));
-      assert.ok(env.getRegisteredPackages().length === 1);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 1).toBeTruthy();
     });
 
     it('with 2 packagePaths', function () {
@@ -319,9 +319,9 @@ describe('Environment Resolver', function () {
           'node_modules/gen-module-root'
         ]
       });
-      assert.ok(env.get('module:app'));
-      assert.ok(env.get('module-root:app'));
-      assert.ok(env.getRegisteredPackages().length === 2);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.get('module-root:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 2).toBeTruthy();
     });
 
     it('with 3 packagePaths', function () {
@@ -332,10 +332,10 @@ describe('Environment Resolver', function () {
           'node_modules/gen-module-lib-gen'
         ]
       });
-      assert.ok(env.get('module:app'));
-      assert.ok(env.get('module-root:app'));
-      assert.ok(env.get('module-lib-gen:app'));
-      assert.ok(env.getRegisteredPackages().length === 3);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.get('module-root:app')).toBeTruthy();
+      expect(env.get('module-lib-gen:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 3).toBeTruthy();
     });
 
     it('with scoped packagePaths', function () {
@@ -347,32 +347,32 @@ describe('Environment Resolver', function () {
           'node_modules/@scoped/gen-scoped'
         ]
       });
-      assert.ok(env.get('module:app'));
-      assert.ok(env.get('module-root:app'));
-      assert.ok(env.get('module-lib-gen:app'));
-      assert.ok(env.get('@scoped/scoped:app'));
-      assert.ok(env.getRegisteredPackages().length === 4);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.get('module-root:app')).toBeTruthy();
+      expect(env.get('module-lib-gen:app')).toBeTruthy();
+      expect(env.get('@scoped/scoped:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 4).toBeTruthy();
     });
 
     it('with npmPaths', function () {
       env.lookup({npmPaths: ['node_modules']});
-      assert.ok(env.get('module:app'));
-      assert.ok(env.get('module-root:app'));
-      assert.ok(env.get('module-lib-gen:app'));
-      assert.ok(env.get('@scoped/scoped:app'));
-      assert.ok(env.getRegisteredPackages().length === 4);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.get('module-root:app')).toBeTruthy();
+      expect(env.get('module-lib-gen:app')).toBeTruthy();
+      expect(env.get('@scoped/scoped:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 4).toBeTruthy();
     });
 
     it('with sub-sub-generators filePatterns', function () {
       env.lookup({npmPaths: ['node_modules'], filePatterns: ['*/*/template.toml'], globbyDeep: 3});
-      assert.ok(env.get('@scoped/scoped:app:scaffold'));
+      expect(env.get('@scoped/scoped:app:scaffold')).toBeTruthy();
     });
 
     it('with packagePatterns', function () {
       env.lookup({npmPaths: ['node_modules'], packagePatterns: ['gen-module', 'gen-module-root']});
-      assert.ok(env.get('module:app'));
-      assert.ok(env.get('module-root:app'));
-      assert.ok(env.getRegisteredPackages().length === 2);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.get('module-root:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 2).toBeTruthy();
     });
   });
 
@@ -460,8 +460,8 @@ describe('Environment Resolver', function () {
           'node_modules'
         ]
       });
-      assert.ok(env.get('module:app'));
-      assert.ok(env.getRegisteredPackages().length === 1);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 1).toBeTruthy();
     });
 
     it('with 2 namespaces', function () {
@@ -471,9 +471,9 @@ describe('Environment Resolver', function () {
           'module-root:app'
         ], {npmPaths: ['node_modules']}
       );
-      assert.ok(env.get('module:app'));
-      assert.ok(env.get('module-root:app'));
-      assert.ok(env.getRegisteredPackages().length === 2);
+      expect(env.get('module:app')).toBeTruthy();
+      expect(env.get('module-root:app')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 2).toBeTruthy();
     });
 
     it('with sub-sub-generators', function () {
@@ -482,8 +482,8 @@ describe('Environment Resolver', function () {
           'node_modules'
         ]
       });
-      assert.ok(env.get('@scoped/scoped:app:scaffold'));
-      assert.ok(env.getRegisteredPackages().length === 1);
+      expect(env.get('@scoped/scoped:app:scaffold')).toBeTruthy();
+      expect(env.getRegisteredPackages().length === 1).toBeTruthy();
     });
   });
 
@@ -515,8 +515,8 @@ describe('Environment Resolver', function () {
 
       it('walk up the CWD lookups dir', function () {
         const paths = env.getNpmPaths();
-        assert.equal(paths[0], path.join(process.cwd(), 'node_modules'));
-        assert.equal(paths[1], path.join(process.cwd(), '../node_modules'));
+        expect(paths[0]).toBe(path.join(process.cwd(), 'node_modules'));
+        expect(paths[1]).toBe(path.join(process.cwd(), '../node_modules'));
       });
 
       it('append NODE_PATH', function () {
@@ -534,9 +534,9 @@ describe('Environment Resolver', function () {
 
       it('walk up the CWD lookups dir', function () {
         // const paths = env.getNpmPaths();
-        assert.equal(paths[0], path.join(process.cwd(), 'node_modules'));
+        expect(paths[0]).toBe(path.join(process.cwd(), 'node_modules'));
         const prevdir = process.cwd().split(path.sep).slice(0, -1).join(path.sep);
-        assert.equal(paths[1], path.join(prevdir, 'node_modules'));
+        expect(paths[1]).toBe(path.join(prevdir, 'node_modules'));
       });
 
       it('append best bet if NODE_PATH is unset', function () {
@@ -564,8 +564,8 @@ describe('Environment Resolver', function () {
 
       it('walk up the CWD lookups dir', function () {
         const paths = env.getNpmPaths();
-        assert.equal(paths[0], path.join(process.cwd(), 'node_modules'));
-        assert.equal(paths[1], path.join(process.cwd(), '../node_modules'));
+        expect(paths[0]).toBe(path.join(process.cwd(), 'node_modules'));
+        expect(paths[1]).toBe(path.join(process.cwd(), '../node_modules'));
       });
 
       it('append NVM_PATH', function () {
@@ -580,8 +580,8 @@ describe('Environment Resolver', function () {
 
       it('walk up the CWD lookups dir', function () {
         const paths = env.getNpmPaths();
-        assert.equal(paths[0], path.join(process.cwd(), 'node_modules'));
-        assert.equal(paths[1], path.join(process.cwd(), '../node_modules'));
+        expect(paths[0]).toBe(path.join(process.cwd(), 'node_modules'));
+        expect(paths[1]).toBe(path.join(process.cwd(), '../node_modules'));
       });
 
       it('append best bet if NVM_PATH is unset', function () {
@@ -598,8 +598,8 @@ describe('Environment Resolver', function () {
 
       it('walk up the CWD lookups dir', function () {
         const paths = env.getNpmPaths();
-        assert.equal(paths[0], path.join(process.cwd(), 'node_modules'));
-        assert.equal(paths[1], path.join(process.cwd(), '../node_modules'));
+        expect(paths[0]).toBe(path.join(process.cwd(), 'node_modules'));
+        expect(paths[1]).toBe(path.join(process.cwd(), '../node_modules'));
       });
 
       it('does not append NODE_PATH', function () {
@@ -648,7 +648,7 @@ describe('Environment Resolver', function () {
       it('pass through root directory', function () {
         const dummyGenerator = 'fixtures/lookup-project/node_modules';
         const generators = env.findGeneratorsIn([dummyGenerator]);
-        assert.ok(generators.length >= 5);
+        expect(generators.length >= 5).toBeTruthy();
       });
     });
   });
@@ -682,32 +682,36 @@ describe('Environment Resolver', function () {
     describe('Find generator', () => {
       it('Scoped lookup', () => {
         const modulePath = <string>Environment.lookupGenerator('@dummyscope/scoped:app');
-        assert.ok(modulePath.endsWith('node_modules/@dummyscope/gen-scoped/app/template.toml'));
+        expect(
+          modulePath.endsWith('node_modules/@dummyscope/gen-scoped/app/template.toml')
+        ).toBeTruthy();
         const packagePath = <string>Environment.lookupGenerator('@dummyscope/scoped:app', {packagePath: true});
-        assert.ok(packagePath.endsWith('node_modules/@dummyscope/gen-scoped'));
+        expect(packagePath.endsWith('node_modules/@dummyscope/gen-scoped')).toBeTruthy();
       });
       it('Lookup', () => {
         const modulePath = <string>Environment.lookupGenerator('dummy:app');
         const modulePath2 = <string>Environment.lookupGenerator('dummy:coge');
-        assert.ok(modulePath.endsWith('node_modules/gen-dummy/app/template.toml'));
-        assert.ok(modulePath2.endsWith('node_modules/gen-dummy/coge/template.toml'));
+        expect(modulePath.endsWith('node_modules/gen-dummy/app/template.toml')).toBeTruthy();
+        expect(modulePath2.endsWith('node_modules/gen-dummy/coge/template.toml')).toBeTruthy();
 
         const packagePath = <string>Environment.lookupGenerator('dummy:app', {packagePath: true});
         const packagePath2 = <string>Environment.lookupGenerator('dummy:coge', {packagePath: true});
         const packagePath3 = <string>Environment.lookupGenerator('dummy', {packagePath: true});
-        assert.ok(packagePath.endsWith('node_modules/gen-dummy'));
-        assert.ok(packagePath2.endsWith('node_modules/gen-dummy'));
-        assert.ok(packagePath3.endsWith('node_modules/gen-dummy'));
+        expect(packagePath.endsWith('node_modules/gen-dummy')).toBeTruthy();
+        expect(packagePath2.endsWith('node_modules/gen-dummy')).toBeTruthy();
+        expect(packagePath3.endsWith('node_modules/gen-dummy')).toBeTruthy();
       });
       it('Module Lookup', () => {
         const modulePath = <string>Environment.lookupGenerator('module:app');
-        assert.ok(modulePath.endsWith('node_modules/gen-module/generators/app/template.toml'), modulePath);
+        expect(
+          modulePath.endsWith('node_modules/gen-module/generators/app/template.toml')
+        ).toBeTruthy();
 
         const packagePath = <string>Environment.lookupGenerator('module:app', {packagePath: true});
-        assert.ok(packagePath.endsWith('node_modules/gen-module'), packagePath);
+        expect(packagePath.endsWith('node_modules/gen-module')).toBeTruthy();
 
         const generatorPath = <string>Environment.lookupGenerator('module:app', {generatorPath: true});
-        assert.ok(generatorPath.endsWith('node_modules/gen-module/generators/'), generatorPath);
+        expect(generatorPath.endsWith('node_modules/gen-module/generators/')).toBeTruthy();
       });
     });
   });
@@ -746,15 +750,25 @@ describe('Environment Resolver', function () {
     describe('Find generator', () => {
       it('Module Lookup', () => {
         const modulePath = <string>Environment.lookupGenerator('module:app');
-        assert.ok(modulePath.endsWith('node_modules/gen-module/generators/app/template.toml'));
+        expect(
+          modulePath.endsWith('node_modules/gen-module/generators/app/template.toml')
+        ).toBeTruthy();
 
         const multiplePath = Environment.lookupGenerator('module:app', {multiple: true});
-        assert.ok(multiplePath[0].endsWith('lookup-project/node_modules/gen-module/generators/app/template.toml'));
-        assert.ok(multiplePath[1].endsWith('lookup-project/node_modules/foo/node_modules/gen-module/generators/app/template.toml'));
+        expect(
+          multiplePath[0].endsWith('lookup-project/node_modules/gen-module/generators/app/template.toml')
+        ).toBeTruthy();
+        expect(
+          multiplePath[1].endsWith('lookup-project/node_modules/foo/node_modules/gen-module/generators/app/template.toml')
+        ).toBeTruthy();
 
         const multiplePath2 = Environment.lookupGenerator('module:app', {singleResult: false});
-        assert.ok(multiplePath2[0].endsWith('lookup-project/node_modules/gen-module/generators/app/template.toml'));
-        assert.ok(multiplePath2[1].endsWith('lookup-project/node_modules/foo/node_modules/gen-module/generators/app/template.toml'));
+        expect(
+          multiplePath2[0].endsWith('lookup-project/node_modules/gen-module/generators/app/template.toml')
+        ).toBeTruthy();
+        expect(
+          multiplePath2[1].endsWith('lookup-project/node_modules/foo/node_modules/gen-module/generators/app/template.toml')
+        ).toBeTruthy();
       });
     });
   });
@@ -785,9 +799,9 @@ describe('Environment Resolver', function () {
 
       it('Generator extended by environment lookup', () => {
         env = new Environment();
-        assert.equal(env.namespaces().length, 0, 'ensure env is empty');
+        expect(env.namespaces().length).toBe(0);
         env.lookup();
-        assert.ok(env.get('environment-extend:app'));
+        expect(env.get('environment-extend:app')).toBeTruthy();
       });
     });
   });

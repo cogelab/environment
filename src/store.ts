@@ -1,4 +1,4 @@
-import {Generators} from "./types";
+import {Metas} from "./types";
 
 const debug = require('debug')('coge:environment:store');
 
@@ -10,12 +10,12 @@ const debug = require('debug')('coge:environment:store');
  * @private
  */
 export class Store {
-  _generators: Generators;
+  _metas: Metas;
   _packagesPaths: { [name: string]: string[] };
   _packagesNS: string[];
 
   constructor() {
-    this._generators = {};
+    this._metas = {};
     // Store packages paths by ns
     this._packagesPaths = {};
     // Store packages ns
@@ -33,7 +33,7 @@ export class Store {
   }
 
   _storeAsPath(namespace, path, packagePath) {
-    this._generators[namespace] = {
+    this._metas[namespace] = {
       resolved: path,
       namespace,
       packagePath
@@ -46,7 +46,7 @@ export class Store {
    * @return {Module}
    */
   get(namespace) {
-    return this._generators[namespace];
+    return this._metas[namespace];
   }
 
   /**
@@ -54,15 +54,15 @@ export class Store {
    * @return {Array} Namespaces array
    */
   namespaces() {
-    return Object.keys(this._generators);
+    return Object.keys(this._metas);
   }
 
   /**
    * Get the stored generators meta data
    * @return {Object} Generators metadata
    */
-  getGenerators() {
-    return this._generators;
+  getMetas() {
+    return this._metas;
   }
 
   /**

@@ -19,10 +19,7 @@ const fields = [
 ];
 
 const equalsNamespace = function (namespace, expected) {
-  fields.forEach(field => assert.equal(
-    namespace[field], expected[field],
-    `Field ${field} differs: ${namespace[field]} === ${expected[field]}`
-  ));
+  fields.forEach(field => expect(namespace[field]).toBe(expected[field]));
   return true;
 };
 
@@ -156,7 +153,7 @@ describe('Namespace', () => {
     });
 
     it('throws exception with namespace with scope, generator, id and invalid flags', () => {
-      assert.throws(() => namespace.requireNamespace('@scope/foo-bar:app+1!$'));
+      expect(() => namespace.requireNamespace('@scope/foo-bar:app+1!$')).toThrow();
     });
 
     it('returns namespace with scope, multiples generator and id', () => {

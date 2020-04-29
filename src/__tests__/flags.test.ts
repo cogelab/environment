@@ -30,11 +30,11 @@ describe.skip('Namespace flags', () => {
       assert.fail();
     } catch (_) {
     }
-    assert.ok(env.get('dummy!'));
-    assert.ok(env.get('dummy:app'));
+    expect(env.get('dummy!')).toBeTruthy();
+    expect(env.get('dummy:app')).toBeTruthy();
   }, 60000);
 
   it('auto-load a module', function () {
-    assert.ok(env.get('dummy:coge!?'));
+    expect(env.get('dummy:coge!?')).toBeTruthy();
   }, 10000);
 });
