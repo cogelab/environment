@@ -1,12 +1,11 @@
 import * as path from "path";
 import * as fs from "fs-extra";
-import * as assert from "assert";
 import toArray from "@tiopkg/utils/array/toArray";
 import * as execa from "execa";
 
 export function assertGenerator(real, resolved: string) {
-  assert.ok(real);
-  assert.equal(real.resolved, path.resolve(__dirname, resolved));
+  expect(real).toBeTruthy();
+  expect(real.resolved).toBe(path.resolve(__dirname, resolved));
 }
 
 export function exec(cmd) {

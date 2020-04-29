@@ -260,8 +260,8 @@ export class Environment extends Resolver {
     }
 
     // Generator is already registered and matches the current namespace.
-    const tpl = this.store.get(namespace);
-    if (tpl && tpl.resolved === modulePath) {
+    const meta = this.store.get(namespace);
+    if (meta && meta.resolved === modulePath) {
       return this;
     }
 

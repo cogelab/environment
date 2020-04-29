@@ -1,3 +1,4 @@
+import * as path from "path";
 import {Metas} from "./types";
 
 const debug = require('debug')('coge:environment:store');
@@ -25,18 +26,19 @@ export class Store {
   /**
    * Store a module under the namespace key
    * @param {String} namespace  - The key under which the generator can be retrieved
-   * @param {String} generator  - A generator module or a module path
+   * @param {String} template  - The template file path
    * @param {String} packagePath - PackagePath to the generator npm package (optional)
    */
-  add(namespace: string, generator: string, packagePath?: string) {
-    this._storeAsPath(namespace, generator, packagePath);
+  add(namespace: string, template: string, packagePath?: string) {
+    this._storeAsPath(namespace, template, packagePath);
   }
 
-  _storeAsPath(namespace, path, packagePath) {
+  _storeAsPath(namespace, template, packagePath) {
     this._metas[namespace] = {
-      resolved: path,
+      resolved: template,
       namespace,
-      packagePath
+      packagePath,
+      templatePath: path.dirname(template)
     };
   }
 
