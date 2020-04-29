@@ -38,7 +38,7 @@ export class Store {
       resolved: template,
       namespace,
       packagePath,
-      templatePath: path.dirname(template)
+      templateDir: path.dirname(template)
     };
   }
 
