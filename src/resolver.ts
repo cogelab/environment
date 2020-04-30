@@ -8,6 +8,7 @@ import {identity} from "@tiopkg/utils/function/identity";
 
 import {execaOutput} from "./util";
 import toArray from "@tiopkg/utils/array/toArray";
+import {resolveNpmRoot, resolveYarnBase} from "./paths";
 
 const debug = require('debug')('coge:environment');
 
@@ -261,16 +262,16 @@ export class PackageLookup {
     paths.push(path.join(PROJECT_ROOT, '..'));
 
     // Get yarn global directory and infer the module paths from there
-    const yarnBase = execaOutput('yarn', ['global', 'dir'], {encoding: 'utf8'});
-    if (yarnBase) {
-      paths.push(path.resolve(yarnBase, 'node_modules'));
-      paths.push(path.resolve(yarnBase, '../link/'));
+    const bases = resolveYarnBase();
+    for (const p of bases) {
+      paths.push(path.resolve(p, 'node_modules'));
+      paths.push(path.resolve(p, '../link/'));
     }
 
     // Get npm global prefix and infer the module paths from there
-    const globalInstall = execaOutput('npm', ['root', '-g'], {encoding: 'utf8'});
-    if (globalInstall) {
-      paths.push(path.resolve(globalInstall));
+    const roots = resolveNpmRoot();
+    for (const p of roots) {
+      paths.push(path.resolve(p));
     }
 
     // Adds support for generator resolving when coge-generator has been linked
