@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs-extra";
-import toArray from "@tiopkg/utils/array/toArray";
+import toArray from "@tib/utils/array/toArray";
 import * as execa from "execa";
 
 export function assertGenerator(real, resolved: string) {

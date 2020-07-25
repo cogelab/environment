@@ -3,17 +3,17 @@ import fs = require("fs-extra");
 import untildify = require('untildify');
 import isScoped = require('is-scoped');
 
-import {findLast} from "@tiopkg/utils/array/findLast";
-import {uniq} from "@tiopkg/utils/array/uniq";
-import {sortBy} from "@tiopkg/utils/array/sortBy";
-import {last} from "@tiopkg/utils/array/last";
+import {findLast} from "@tib/utils/array/findLast";
+import {uniq} from "@tib/utils/array/uniq";
+import {sortBy} from "@tib/utils/array/sortBy";
+import {last} from "@tib/utils/array/last";
 
 import {PackageLookup, PackageLookupOptions, Resolver} from "./resolver";
 import {PromptModule, TerminalAdapter} from "./adapter";
 import {Store} from "./store";
 import {ReadStream, WriteStream} from "tty";
-import escapeRegExp from "@tiopkg/utils/string/escapeRegExp";
-import toArray from "@tiopkg/utils/array/toArray";
+import escapeRegExp from "@tib/utils/string/escapeRegExp";
+import toArray from "@tib/utils/array/toArray";
 import {Meta} from "./types";
 
 const debug = require('debug')('coge:environment');

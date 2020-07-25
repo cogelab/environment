@@ -1,5 +1,5 @@
 import execa = require('execa');
-import replace from "@tiopkg/utils/string/replace";
+import replace from "@tib/utils/string/replace";
 
 /**
  * Create a "sloppy" copy of an initial Environment object. The focus of this method is on

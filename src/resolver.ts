@@ -2,12 +2,11 @@ import path = require('path');
 import fs = require('fs-extra');
 import globby = require('globby');
 
-import {uniq} from "@tiopkg/utils/array/uniq";
-import {filter} from "@tiopkg/utils/array/filter";
-import {identity} from "@tiopkg/utils/function/identity";
+import {uniq} from "@tib/utils/array/uniq";
+import {filter} from "@tib/utils/array/filter";
+import {identity} from "@tib/utils/function/identity";
 
-import {execaOutput} from "./util";
-import toArray from "@tiopkg/utils/array/toArray";
+import toArray from "@tib/utils/array/toArray";
 import {resolveNpmRoot, resolveYarnBase} from "./paths";
 
 const debug = require('debug')('coge:environment');

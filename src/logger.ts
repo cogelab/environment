@@ -3,7 +3,7 @@ import table = require('text-table');
 import chalk = require('chalk');
 import logSymbols = require('log-symbols');
 
-import {mergeDeep} from "@tiopkg/utils/object/mergeDeep";
+import {mergeDeep} from "@tib/utils/object/mergeDeep";
 import {WriteStream} from "tty";
 
 // Padding step
