@@ -1,27 +1,27 @@
-import path = require("path");
-import fs = require("fs-extra");
+import path = require('path');
+import fs = require('fs-extra');
 import untildify = require('untildify');
 import isScoped = require('is-scoped');
 
-import {findLast} from "@loopx/utils/array/findLast";
-import {uniq} from "@loopx/utils/array/uniq";
-import {sortBy} from "@loopx/utils/array/sortBy";
-import {last} from "@loopx/utils/array/last";
+import {findLast} from '@loopx/utils/array/findLast';
+import {uniq} from '@loopx/utils/array/uniq';
+import {sortBy} from '@loopx/utils/array/sortBy';
+import {last} from '@loopx/utils/array/last';
 
-import {PackageLookup, PackageLookupOptions, Resolver} from "./resolver";
-import {PromptModule, TerminalAdapter} from "./adapter";
-import {Store} from "./store";
-import {ReadStream, WriteStream} from "tty";
-import escapeRegExp from "@loopx/utils/string/escapeRegExp";
-import toArray from "@loopx/utils/array/toArray";
-import {Meta} from "./types";
+import {PackageLookup, PackageLookupOptions, Resolver} from './resolver';
+import {PromptModule, TerminalAdapter} from './adapter';
+import {Store} from './store';
+import {ReadStream, WriteStream} from 'tty';
+import escapeRegExp from '@loopx/utils/string/escapeRegExp';
+import toArray from '@loopx/utils/array/toArray';
+import {Meta} from './types';
 
 const debug = require('debug')('coge:environment');
 
 /**
  * Hint of generator module name
  */
-function getGeneratorHint(namespace) {
+function getGeneratorHint(namespace: string) {
   if (isScoped(namespace)) {
     const splitName = namespace.split('/');
     return `${splitName[0]}/gen-${splitName[1]}`;
@@ -48,7 +48,7 @@ export class Environment extends Resolver {
   static packageLookup = new PackageLookup();
 
   protected cwd: string;
-  protected options: Partial<EnvironmentOptions>;
+  options: Partial<EnvironmentOptions>;
   adapter?: TerminalAdapter;
   store: Store;
 
@@ -62,7 +62,7 @@ export class Environment extends Resolver {
    * @param  {Environment} env
    * @return {Environment} The updated env
    */
-  static enforceUpdate(env) {
+  static enforceUpdate(env: Environment) {
     if (!env.adapter) {
       env.adapter = new TerminalAdapter();
     }
@@ -78,7 +78,10 @@ export class Environment extends Resolver {
    *
    * @return {Environment} a new Environment instance
    */
-  static createEnv(opts?: EnvironmentOptions, adapter?: TerminalAdapter): Environment {
+  static createEnv(
+    opts?: EnvironmentOptions,
+    adapter?: TerminalAdapter,
+  ): Environment {
     return new Environment(opts, adapter);
   }
 
@@ -88,7 +91,7 @@ export class Environment extends Resolver {
    * @param  {String} namespace
    * @return {String}
    */
-  static namespaceToName(namespace) {
+  static namespaceToName(namespace: string) {
     return namespace.split(':')[0];
   }
 
@@ -104,32 +107,50 @@ export class Environment extends Resolver {
    * @param {Boolean} [options.singleResult=true] - Set false to return multiple values.
    * @return {String} generator
    */
-  static lookupGenerator(namespace: string, options: Partial<LookupGeneratorOptions> | boolean = {singleResult: true}): string | string[] {
+  static lookupGenerator(
+    namespace: string,
+    options: Partial<LookupGeneratorOptions> | boolean = {singleResult: true},
+  ): string | string[] {
     let opts: LookupGeneratorOptions;
     if (typeof options === 'boolean') {
       opts = <LookupGeneratorOptions>{singleResult: true, localOnly: options};
     } else {
       // Keep compatibility with opts.multiple
-      opts = <LookupGeneratorOptions>{singleResult: !options.multiple, ...options};
+      opts = <LookupGeneratorOptions>{
+        singleResult: !options.multiple,
+        ...options,
+      };
     }
 
-    opts.filePatterns = opts.filePatterns || Environment.lookups.map(prefix => path.join(prefix, '*/template.toml'));
+    opts.filePatterns =
+      opts.filePatterns ||
+      Environment.lookups.map(prefix => path.join(prefix, '*/template.toml'));
 
     const name = Environment.namespaceToName(namespace);
     opts.packagePatterns = opts.packagePatterns || getGeneratorHint(name);
 
-    opts.npmPaths = opts.npmPaths || this.packageLookup.getNpmPaths(opts.localOnly).reverse();
+    opts.npmPaths =
+      opts.npmPaths || this.packageLookup.getNpmPaths(opts.localOnly).reverse();
     if (!Array.isArray(opts.npmPaths)) opts.npmPaths = [opts.npmPaths];
     opts.packagePatterns = opts.packagePatterns || 'gen-*';
-    opts.packagePaths = opts.packagePaths || this.packageLookup.findPackagesIn(opts.npmPaths, opts);
+    opts.packagePaths =
+      opts.packagePaths ||
+      this.packageLookup.findPackagesIn(opts.npmPaths, opts);
 
-    let paths: string[] = [];
+    const paths: string[] = [];
     this.packageLookup.sync(opts, module => {
       const filename = module.filePath;
       const fileNS = this.namespace(filename, Environment.lookups);
-      if (namespace === fileNS || (opts.packagePath && namespace === Environment.namespaceToName(fileNS))) {
+      if (
+        namespace === fileNS ||
+        (opts.packagePath && namespace === Environment.namespaceToName(fileNS))
+      ) {
         // Version 2.6.0 returned pattern instead of modulePath for opts.packagePath
-        const returnPath = opts.packagePath ? module.packagePath : (opts.generatorPath ? path.posix.join(filename, '../../') : filename);
+        const returnPath = opts.packagePath
+          ? module.packagePath
+          : opts.generatorPath
+          ? path.posix.join(filename, '../../')
+          : filename;
         paths.push(returnPath);
         if (opts.singleResult) {
           return true;
@@ -168,15 +189,26 @@ export class Environment extends Resolver {
     lookups = toArray(lookups || []);
 
     // Cleanup extension and normalize path for different OS
-    let ns = path.normalize(filepath.replace(new RegExp(escapeRegExp(path.extname(filepath)) + '$'), ''));
+    let ns = path.normalize(
+      filepath.replace(
+        new RegExp(escapeRegExp(path.extname(filepath)) + '$'),
+        '',
+      ),
+    );
 
     // Sort lookups by length so biggest are removed first
-    const nsLookups = sortBy(s => s.length, lookups.concat(['..'])).map(path.normalize).reverse();
+    const nsLookups = sortBy(s => s.length, lookups.concat(['..']))
+      .map(path.normalize)
+      .reverse();
 
     // If `ns` contains a lookup dir in its path, remove it.
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     ns = nsLookups.reduce((ns, lookup) => {
       // Only match full directory (begin with leading slash or start of input, end with trailing slash)
-      const reg = new RegExp(`(?:\\\\|/|^)${escapeRegExp(lookup)}(?=[\\\\|/])`, 'g');
+      const reg = new RegExp(
+        `(?:\\\\|/|^)${escapeRegExp(lookup)}(?=[\\\\|/])`,
+        'g',
+      );
       return ns.replace(reg, '');
     }, ns);
 
@@ -198,7 +230,6 @@ export class Environment extends Resolver {
 
     return ns;
   }
-
 
   /**
    * @classdesc `Environment` object is responsible of handling the lifecyle and bootstrap
@@ -231,7 +262,8 @@ export class Environment extends Resolver {
 
     this.options = opts || {};
     const {prompt, console, stdin, stderr} = this.options;
-    this.adapter = adapter || new TerminalAdapter({prompt, console, stdin, stderr});
+    this.adapter =
+      adapter || new TerminalAdapter({prompt, console, stdin, stderr});
     this.cwd = this.options.cwd || process.cwd();
     this.store = new Store();
 
@@ -239,7 +271,6 @@ export class Environment extends Resolver {
     this.aliases = [];
 
     this.alias(/^([^:]+)$/, '$1:app');
-
   }
 
   /**
@@ -272,7 +303,13 @@ export class Environment extends Resolver {
       this.store.addPackage(packageNS, packagePath);
     }
 
-    debug('Registered %s (%s) on package %s (%s)', namespace, modulePath, packageNS, packagePath);
+    debug(
+      'Registered %s (%s) on package %s (%s)',
+      namespace,
+      modulePath,
+      packageNS,
+      packagePath,
+    );
     return this;
   }
 
@@ -298,7 +335,9 @@ export class Environment extends Resolver {
    * @return {Array}
    */
   getGeneratorNames() {
-    return uniq(Object.keys(this.getGenerators()).map(Environment.namespaceToName));
+    return uniq(
+      Object.keys(this.getGenerators()).map(Environment.namespaceToName),
+    );
   }
 
   /**
@@ -307,7 +346,7 @@ export class Environment extends Resolver {
    * @param  {String} [packageNS] - namespace of the package.
    * @return {boolean} - true if any generator of the package has been registered
    */
-  isPackageRegistered(packageNS) {
+  isPackageRegistered(packageNS: string) {
     return this.getRegisteredPackages().includes(packageNS);
   }
 
@@ -326,7 +365,7 @@ export class Environment extends Resolver {
    * @param  {String} namespace
    * @return {String} - path of the package
    */
-  getPackagePath(namespace): string | undefined {
+  getPackagePath(namespace: string): string | undefined {
     if (namespace.includes(':')) {
       const generator = this.get(namespace);
       return generator?.packagePath;
@@ -341,9 +380,13 @@ export class Environment extends Resolver {
    * @param  {String} namespace
    * @return  {Array} array of paths.
    */
-  getPackagePaths(namespace) {
-    return this.store.getPackagesPaths()[namespace] ||
-      this.store.getPackagesPaths()[Environment.namespaceToName(this.alias(namespace))];
+  getPackagePaths(namespace: string) {
+    return (
+      this.store.getPackagesPaths()[namespace] ||
+      this.store.getPackagesPaths()[
+        Environment.namespaceToName(this.alias(namespace))
+      ]
+    );
   }
 
   /**
@@ -362,19 +405,7 @@ export class Environment extends Resolver {
       return;
     }
 
-    // const parsed = this.toNamespace ? this.toNamespace(namespaceOrPath) : undefined;
-    // if (parsed && this.getByNamespace) {
-    //   let generator = this.getByNamespace(parsed);
-    //
-    //   if (!generator && parsed.flags) {
-    //     this.prepareEnvironment(parsed);
-    //     generator = this.getByNamespace(parsed);
-    //   }
-    //
-    //   return generator;
-    // }
-
-    let namespace = namespaceOrPath;
+    let namespace: string = namespaceOrPath;
 
     const parts = namespaceOrPath.split(':');
     const maybePath = <string>last(parts);
@@ -389,22 +420,24 @@ export class Environment extends Resolver {
       namespace = parts.join(':');
     }
 
-    return this.store.get(namespace) ||
+    return (
+      this.store.get(namespace) ||
       this.store.get(this.alias(namespace)) ||
       // Namespace is empty if namespaceOrPath contains a win32 absolute path of the form 'C:\path\to\generator'.
       // for this reason we pass namespaceOrPath to the getByPath function.
-      this.getByPath(namespaceOrPath);
+      this.getByPath(namespaceOrPath)
+    );
   }
 
   /**
    * Get a generator by path instead of namespace.
-   * @param  {String} path
+   * @param  {String} p
    * @return {Meta|null} - the generator found at the location
    */
-  getByPath(path): Meta | undefined {
-    if (fs.existsSync(path)) {
-      const namespace = this.namespace(path);
-      this.register(path, namespace);
+  getByPath(p: string): Meta | undefined {
+    if (fs.existsSync(p)) {
+      const namespace = this.namespace(p);
+      this.register(p, namespace);
 
       return this.get(namespace);
     }
@@ -430,7 +463,7 @@ export class Environment extends Resolver {
    * @param {String} filepath
    * @param {Array} lookups paths
    */
-  namespace(filepath, lookups = this.lookups) {
+  namespace(filepath: string, lookups = this.lookups) {
     return Environment.namespace(filepath, lookups);
   }
 
@@ -439,7 +472,7 @@ export class Environment extends Resolver {
    * @param  {String} m - Filepath or module name
    * @return {String} - The resolved path leading to the module
    */
-  resolveModulePath(m) {
+  resolveModulePath(m: string) {
     if (m[0] === '.') {
       m = path.resolve(m);
     }

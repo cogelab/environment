@@ -1,5 +1,5 @@
-import * as path from "path";
-import {Metas} from "./types";
+import * as path from 'path';
+import {Metas} from './types';
 
 const debug = require('debug')('coge:environment:store');
 
@@ -12,7 +12,7 @@ const debug = require('debug')('coge:environment:store');
  */
 export class Store {
   _metas: Metas;
-  _packagesPaths: { [name: string]: string[] };
+  _packagesPaths: {[name: string]: string[]};
   _packagesNS: string[];
 
   constructor() {
@@ -33,12 +33,12 @@ export class Store {
     this._storeAsPath(namespace, template, packagePath);
   }
 
-  _storeAsPath(namespace, template, packagePath) {
+  _storeAsPath(namespace: string, template: string, packagePath?: string) {
     this._metas[namespace] = {
       resolved: template,
       namespace,
       packagePath,
-      templateDir: path.dirname(template)
+      templateDir: path.dirname(template),
     };
   }
 
@@ -47,7 +47,7 @@ export class Store {
    * @param  {String} namespace
    * @return {Module}
    */
-  get(namespace) {
+  get(namespace: string) {
     return this._metas[namespace];
   }
 
@@ -72,13 +72,17 @@ export class Store {
    * @param {String}     packageNS - The key under which the generator can be retrieved
    * @param {String}   packagePath - The package path
    */
-  addPackage(packageNS, packagePath) {
+  addPackage(packageNS: string | number, packagePath: string) {
     if (this._packagesPaths[packageNS]) {
       // Yo environment allows overriding, so the last added has preference.
       if (this._packagesPaths[packageNS][0] !== packagePath) {
         const packagePaths = this._packagesPaths[packageNS];
-        debug('Overriding a package with namespace %s and path %s, with path %s',
-          packageNS, this._packagesPaths[packageNS][0], packagePath);
+        debug(
+          'Overriding a package with namespace %s and path %s, with path %s',
+          packageNS,
+          this._packagesPaths[packageNS][0],
+          packagePath,
+        );
         // Remove old packagePath
         const index = packagePaths.indexOf(packagePath);
         if (index > -1) {
@@ -103,7 +107,7 @@ export class Store {
    * Store a package ns
    * @param {String} packageNS - The key under which the generator can be retrieved
    */
-  addPackageNS(packageNS) {
+  addPackageNS(packageNS: string) {
     if (!this._packagesNS.includes(packageNS)) {
       this._packagesNS.push(packageNS);
     }

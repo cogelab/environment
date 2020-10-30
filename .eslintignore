@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+/sandbox
+**/*.d.ts
+src/__tests__/fixtures

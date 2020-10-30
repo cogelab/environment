@@ -1,8 +1,7 @@
-
 export interface Meta {
   resolved: string;
   namespace: string;
-  packagePath: string;
+  packagePath?: string;
   templateDir: string;
 }
 

@@ -1,24 +1,33 @@
-import camelCase = require("camelcase");
+import camelCase = require('camelcase');
 const debug = require('debug')('coge:environment:namespace');
 
 // ============ | == @ ======== scope ========== | ====== unscoped ====== | = : ========== generator ========== | = @ ===== semver ====== @ | == + ========= instanceId =========== | = # ======= method ========= |= flags = |
 const regexp = /^(?:(@[a-z0-9-~][a-z0-9-._~]*)\/)?([a-z0-9-~][a-z0-9-._~]*)(?::((?:[a-z0-9-~][a-z0-9-._~]*:?)*))?(?:@([a-z0-9-.~><+=^* ]*)@)?(?:\+((?:[a-z0-9-~][a-z0-9-._~]*\+?)*))?(?:#([a-z0-9-~][a-z0-9-._~]*))?(!|!\?|\?)?$/;
 
-const groups = {complete: 0, scope: 1, unscoped: 2, generator: 3, semver: 4, instanceId: 5, method: 6, flags: 7};
+const groups = {
+  complete: 0,
+  scope: 1,
+  unscoped: 2,
+  generator: 3,
+  semver: 4,
+  instanceId: 5,
+  method: 6,
+  flags: 7,
+};
 const flags = {install: '!', load: '!?', optional: '?'};
 
 export interface NamespaceProps {
-  scope;
-  unscoped;
-  generator;
-  instanceId;
-  semver;
-  method;
-  flags;
+  scope: any;
+  unscoped: any;
+  generator: any;
+  instanceId: string;
+  semver: any;
+  method: string | readonly string[];
+  flags: string;
 }
 
 export interface NamespaceOptions extends NamespaceProps {
-  complete;
+  complete: any;
 }
 
 export interface NamespaceFlags {
@@ -29,8 +38,8 @@ export interface NamespaceFlags {
 
 export class CogeNamespace implements NamespaceProps, NamespaceFlags {
   protected _complete;
-  protected _id;
-  protected _namespace;
+  protected _id: any;
+  protected _namespace: any;
   flags;
   generator;
   instanceId;
@@ -57,9 +66,9 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
     if (this.flags) {
       Object.entries(flags).forEach(([name, value]) => {
         if (this.flags === value) {
-          this[name] = true;
+          (this as any)[name] = true;
         } else {
-          delete this[name];
+          delete (this as any)[name];
         }
       });
     }
@@ -67,7 +76,7 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
     debug('Parsed namespace %o', this);
   }
 
-  static parse(complete): NamespaceOptions | undefined {
+  static parse(complete: string): NamespaceOptions | undefined {
     const result = regexp.exec(complete);
     if (!result) {
       debug('Namespace failed RegExp parse %s, using fallback', complete);
@@ -78,19 +87,19 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
     // Populate fields
     Object.entries(groups).forEach(([name, value]) => {
       if (result[value]) {
-        parsed[name] = result[value];
+        (parsed as any)[name] = result[value];
       }
     });
     return <NamespaceOptions>parsed;
   }
 
-  _update(parsed) {
-    this.scope = parsed.scope || this.scope;
-    this.unscoped = parsed.unscoped || this.unscoped;
-    this.generator = parsed.generator || this.generator;
-    this.instanceId = parsed.instanceId || this.instanceId;
-    this.method = parsed.method || this.method;
-    this.flags = parsed.flags || this.flags;
+  _update(parsed?: NamespaceOptions) {
+    this.scope = parsed?.scope || this.scope;
+    this.unscoped = parsed?.unscoped || this.unscoped;
+    this.generator = parsed?.generator || this.generator;
+    this.instanceId = parsed?.instanceId || this.instanceId;
+    this.method = parsed?.method || this.method;
+    this.flags = parsed?.flags || this.flags;
   }
 
   get _scopeAddition() {
@@ -110,7 +119,9 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
   }
 
   get complete() {
-    return `${this.namespace}${this._semverAddition}${this._idAddition}${this.flags || ''}`;
+    return `${this.namespace}${this._semverAddition}${this._idAddition}${
+      this.flags || ''
+    }`;
   }
 
   get packageNamespace() {
@@ -134,7 +145,9 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
   }
 
   get versionedHint() {
-    return this.semver ? `${this.generatorHint}@"${this.semver}"` : this.generatorHint;
+    return this.semver
+      ? `${this.generatorHint}@"${this.semver}"`
+      : this.generatorHint;
   }
 
   get methodName() {
@@ -148,7 +161,7 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
       return;
     }
     const ids = this.instanceId.split('+');
-    const id = ids.pop();
+    const id: string = ids.pop()!;
     if (isNaN(parseInt(id, 10)) || id.startsWith('0')) {
       ids.push(id);
       ids.push('1');
@@ -165,7 +178,6 @@ export class CogeNamespace implements NamespaceProps, NamespaceFlags {
     delete this._complete;
   }
 }
-
 
 /**
  * Parse an namespace
@@ -195,8 +207,10 @@ export function parseNamespace(namespace: string) {
  * @param  {String | CogeNamespace} namespace
  * @return {CogeNamespace}
  */
-export function toNamespace(namespace: string | CogeNamespace) {
-  return this.isNamespace(namespace) ? namespace : this.parseNamespace(namespace);
+export function toNamespace(this: any, namespace: string | CogeNamespace) {
+  return this.isNamespace(namespace)
+    ? namespace
+    : this.parseNamespace(namespace);
 }
 
 /**
@@ -206,7 +220,7 @@ export function toNamespace(namespace: string | CogeNamespace) {
  * @param  {String | CogeNamespace} namespace
  * @return {CogeNamespace}
  */
-export function requireNamespace(namespace: string | CogeNamespace) {
+export function requireNamespace(this: any, namespace: string | CogeNamespace) {
   const parsed = this.toNamespace(namespace);
   if (!parsed) {
     throw new Error(`Error parsing namespace ${namespace}`);
@@ -221,6 +235,6 @@ export function requireNamespace(namespace: string | CogeNamespace) {
  * @param  {Object} namespace
  * @return {Boolean} True if namespace is a CogeNamespace
  */
-export function isNamespace(namespace: Object) {
-  return namespace && namespace.constructor && namespace.constructor.name === 'CogeNamespace';
+export function isNamespace(namespace: any) {
+  return namespace?.constructor?.name === 'CogeNamespace';
 }

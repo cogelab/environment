@@ -2,12 +2,12 @@ import path = require('path');
 import fs = require('fs-extra');
 import globby = require('globby');
 
-import {uniq} from "@loopx/utils/array/uniq";
-import {filter} from "@loopx/utils/array/filter";
-import {identity} from "@loopx/utils/function/identity";
+import {uniq} from '@loopx/utils/array/uniq';
+import {filter} from '@loopx/utils/array/filter';
+import {identity} from '@loopx/utils/function/identity';
 
-import toArray from "@loopx/utils/array/toArray";
-import {resolveNpmRoot, resolveYarnBase} from "./paths";
+import toArray from '@loopx/utils/array/toArray';
+import {resolveNpmRoot, resolveYarnBase} from './paths';
 
 const debug = require('debug')('coge:environment');
 
@@ -32,14 +32,12 @@ export interface PackageLookupOptions {
   globbyDeep: number;
 }
 
-
 export interface Package {
   filePath: string;
   packagePath: string;
 }
 
 export class PackageLookup {
-
   /**
    * Search for npm packages.
    *
@@ -56,7 +54,10 @@ export class PackageLookup {
    * @param {boolean} [options.reverse = false] - Set true reverse npmPaths/packagePaths order
    * @param {function}     [find]  Executed for each match, return true to stop lookup.
    */
-  sync(options: Partial<PackageLookupOptions> | boolean = {}, find = module => module): Package[] {
+  sync(
+    options: Partial<PackageLookupOptions> | boolean = {},
+    find = (module: any) => module,
+  ): Package[] {
     if (typeof options === 'boolean') {
       options = {localOnly: options};
     }
@@ -71,7 +72,9 @@ export class PackageLookup {
       }
     } else {
       opts.npmPaths = opts.npmPaths || this.getNpmPaths(opts);
-      opts.npmPaths = Array.isArray(opts.npmPaths) ? opts.npmPaths : [opts.npmPaths];
+      opts.npmPaths = Array.isArray(opts.npmPaths)
+        ? opts.npmPaths
+        : [opts.npmPaths];
       if (opts.reverse) {
         opts.npmPaths = opts.npmPaths.reverse();
       }
@@ -82,13 +85,17 @@ export class PackageLookup {
 
     const modules: Package[] = [];
     for (const packagePath of opts.packagePaths) {
-      if (!fs.existsSync(packagePath) || (!fs.lstatSync(packagePath).isDirectory() && !fs.lstatSync(packagePath).isSymbolicLink())) {
+      if (
+        !fs.existsSync(packagePath) ||
+        (!fs.lstatSync(packagePath).isDirectory() &&
+          !fs.lstatSync(packagePath).isSymbolicLink())
+      ) {
         continue;
       }
       const founds = globby.sync(opts.filePatterns, {
         cwd: packagePath,
         absolute: true,
-        deep: opts.globbyDeep
+        deep: opts.globbyDeep,
       });
       for (const filePath of founds) {
         const module = {filePath, packagePath};
@@ -100,7 +107,6 @@ export class PackageLookup {
     }
     return modules;
   }
-
 
   /**
    * Search npm for every available generators.
@@ -115,11 +121,16 @@ export class PackageLookup {
    * @param {string|string[]} [options.packagePatterns='gen-*'] - Pattern pattern.
    * @return {Array} List of the generator modules path
    */
-  findPackagesIn(searchPaths: string[], options: { packagePatterns?: string | string[] } = {}) {
+  findPackagesIn(
+    searchPaths: string[],
+    options: {packagePatterns?: string | string[]} = {},
+  ) {
     const packagePatterns = options.packagePatterns || PACKAGE_NAME;
 
     // Remove undefined values and convert paths to absolute
-    searchPaths = searchPaths.filter(npmPath => npmPath).map(npmPath => path.resolve(npmPath));
+    searchPaths = searchPaths
+      .filter(npmPath => npmPath)
+      .map(npmPath => path.resolve(npmPath));
 
     let modules: string[] = [];
     for (const root of searchPaths) {
@@ -130,24 +141,37 @@ export class PackageLookup {
       // catch to handle the error gracefully as globby doesn't have an option to skip
       // restricted folders.
       try {
-        modules = modules.concat(globby.sync(
-          packagePatterns,
-          {cwd: root, expandDirectories: false, onlyDirectories: true, absolute: true, deep: 0}
-        ));
+        modules = modules.concat(
+          globby.sync(packagePatterns, {
+            cwd: root,
+            expandDirectories: false,
+            onlyDirectories: true,
+            absolute: true,
+            deep: 0,
+          }),
+        );
 
         // To limit recursive lookups into non-namespace folders within globby,
         // fetch all namespaces in root, then search each namespace separately
         // for generator modules
-        const scopes = globby.sync(
-          ['@*'],
-          {cwd: root, expandDirectories: false, onlyDirectories: true, absolute: true, deep: 0}
-        );
+        const scopes = globby.sync(['@*'], {
+          cwd: root,
+          expandDirectories: false,
+          onlyDirectories: true,
+          absolute: true,
+          deep: 0,
+        });
 
         for (const scope of scopes) {
-          modules = modules.concat(globby.sync(
-            packagePatterns,
-            {cwd: scope, expandDirectories: false, onlyDirectories: true, absolute: true, deep: 0}
-          ));
+          modules = modules.concat(
+            globby.sync(packagePatterns, {
+              cwd: scope,
+              expandDirectories: false,
+              onlyDirectories: true,
+              absolute: true,
+              deep: 0,
+            }),
+          );
         }
       } catch (error) {
         debug('Could not access %s (%s)', root, error);
@@ -155,8 +179,7 @@ export class PackageLookup {
     }
 
     return modules;
-  };
-
+  }
 
   /**
    * Get the npm lookup directories (`node_modules/`)
@@ -171,10 +194,14 @@ export class PackageLookup {
    *                       with a supported path (don't touch at NODE_PATH paths).
    * @return {Array} lookup paths
    */
-  getNpmPaths(options: {
-    localOnly?: boolean;
-    filterPaths?: boolean;
-  } | boolean = {}) {
+  getNpmPaths(
+    options:
+      | {
+          localOnly?: boolean;
+          filterPaths?: boolean;
+        }
+      | boolean = {},
+  ) {
     // Resolve signature where options is boolean (localOnly).
     if (typeof options === 'boolean') {
       options = {localOnly: options};
@@ -188,8 +215,7 @@ export class PackageLookup {
     }
 
     return uniq(paths);
-  };
-
+  }
 
   /**
    * Get the local npm lookup directories
@@ -200,18 +226,21 @@ export class PackageLookup {
     const paths: string[] = [];
 
     // Walk up the CWD and add `node_modules/` folder lookup on each level
-    process.cwd().split(path.sep).forEach((part, i, parts) => {
-      let lookup = path.join(...parts.slice(0, i + 1), 'node_modules');
+    process
+      .cwd()
+      .split(path.sep)
+      .forEach((part, i, parts) => {
+        let lookup = path.join(...parts.slice(0, i + 1), 'node_modules');
 
-      if (!win32) {
-        lookup = `/${lookup}`;
-      }
+        if (!win32) {
+          lookup = `/${lookup}`;
+        }
 
-      paths.push(lookup);
-    });
+        paths.push(lookup);
+      });
 
     return uniq(paths.reverse());
-  };
+  }
 
   /**
    * Get the global npm lookup directories
@@ -226,13 +255,24 @@ export class PackageLookup {
     // 1: $HOME/.node_modules
     // 2: $HOME/.node_libraries
     // 3: $PREFIX/lib/node
-    const filterValidNpmPath = function (path, ignore = false) {
-      return ignore ? path : (['/node_modules', '/.node_modules', '/.node_libraries', '/node'].find(dir => path.endsWith(dir)) ? path : undefined);
+    const filterValidNpmPath = function (p: string, ignore = false) {
+      return ignore
+        ? p
+        : [
+            '/node_modules',
+            '/.node_modules',
+            '/.node_libraries',
+            '/node',
+          ].find(dir => p.endsWith(dir))
+        ? p
+        : '';
     };
 
     // Default paths for each system
     if (nvm) {
-      paths.push(path.join(process.env.NVM_HOME!, process.version, 'node_modules'));
+      paths.push(
+        path.join(process.env.NVM_HOME!, process.version, 'node_modules'),
+      );
     } else if (win32) {
       paths.push(path.join(process.env.APPDATA!, 'npm/node_modules'));
     } else {
@@ -250,13 +290,17 @@ export class PackageLookup {
     // because of bugs in the parseable implementation of `ls` command and mostly
     // performance issues. So, we go with our best bet for now.
     if (process.env.NODE_PATH) {
-      // @ts-ignore
-      paths = filter(identity)(process.env.NODE_PATH.split(path.delimiter)).concat(paths);
+      paths = filter(
+        x => !!identity(x),
+        process.env.NODE_PATH.split(path.delimiter),
+      ).concat(paths);
     }
 
     // Global node_modules should be 4 or 2 directory up this one (most of the time)
     // Ex: /usr/another_global/node_modules/coge-denerator/node_modules/coge-environment/lib (1 level dependency)
-    paths.push(filterValidNpmPath(path.join(PROJECT_ROOT, '../../..'), !filterPaths));
+    paths.push(
+      filterValidNpmPath(path.join(PROJECT_ROOT, '../../..'), !filterPaths),
+    );
     // Ex: /usr/another_global/node_modules/coge-environment/lib (installed directly)
     paths.push(path.join(PROJECT_ROOT, '..'));
 
@@ -275,12 +319,16 @@ export class PackageLookup {
 
     // Adds support for generator resolving when coge-generator has been linked
     if (process.argv[1]) {
-      paths.push(filterValidNpmPath(path.join(path.dirname(process.argv[1]), '../..'), !filterPaths));
+      paths.push(
+        filterValidNpmPath(
+          path.join(path.dirname(process.argv[1]), '../..'),
+          !filterPaths,
+        ),
+      );
     }
 
-    return uniq(paths.filter(path => path).reverse());
-  };
-
+    return uniq(paths.filter(identity).reverse());
+  }
 }
 
 export interface LookupOptions {
@@ -304,7 +352,6 @@ export interface GeneratorItem {
 }
 
 export abstract class Resolver {
-
   protected packageLookup: PackageLookup;
   protected aliases: Alias[];
   protected lookups: string[];
@@ -315,7 +362,11 @@ export abstract class Resolver {
 
   abstract namespace(filepath: string, lookups?: string[]): string;
 
-  abstract register(name: string, namespace: string, packagePath?: string): this;
+  abstract register(
+    name: string,
+    namespace: string,
+    packagePath?: string,
+  ): this;
 
   /**
    * Search for generators and their sub generators.
@@ -342,7 +393,6 @@ export abstract class Resolver {
    * @return {Object[]} List of generators
    */
   lookup(options: Partial<LookupOptions> | boolean = {localOnly: false}) {
-
     let opts: LookupOptions;
     // Resolve signature where options is omitted.
     if (typeof options === 'boolean') {
@@ -353,16 +403,20 @@ export abstract class Resolver {
 
     const lookups: string[] = opts.lookups || this.lookups;
     // generators should be after, last will override registered one.
-    opts.filePatterns = opts.filePatterns ||
-      lookups.reduce((acc, prefix) => acc.concat([
-        path.join(prefix, '*/template.toml'),
-      ]), <string[]>[]);
+    opts.filePatterns =
+      opts.filePatterns ||
+      lookups.reduce(
+        (acc, prefix) => acc.concat([path.join(prefix, '*/template.toml')]),
+        <string[]>[],
+      );
 
     // Backward compatibility
-    opts.filterPaths = opts.filterPaths === undefined ? false : opts.filterPaths;
+    opts.filterPaths =
+      opts.filterPaths === undefined ? false : opts.filterPaths;
     opts.packagePatterns = opts.packagePatterns || 'gen-*';
     // We want to register high priorities packages after.
-    opts.reverse = opts.reverse === undefined ? !opts.singleResult : opts.reverse;
+    opts.reverse =
+      opts.reverse === undefined ? !opts.singleResult : opts.reverse;
 
     const generators: GeneratorItem[] = [];
     this.packageLookup.sync(opts, module => {
@@ -373,15 +427,22 @@ export abstract class Resolver {
         // Scoped package
         repositoryPath = path.join(repositoryPath, '..');
       }
-      const namespace = this.namespace(path.relative(repositoryPath, generatorPath), lookups);
+      const namespace = this.namespace(
+        path.relative(repositoryPath, generatorPath),
+        lookups,
+      );
 
-      const registered = this._tryRegistering(generatorPath, packagePath, namespace);
+      const registered = this._tryRegistering(
+        generatorPath,
+        packagePath,
+        namespace,
+      );
       generators.push({generatorPath, packagePath, namespace, registered});
       return opts.singleResult && registered;
     });
 
     return generators;
-  };
+  }
 
   /**
    * Search npm for every available generators.
@@ -396,7 +457,10 @@ export abstract class Resolver {
    * @param {boolean} [options.packagePatterns='gen-*'] - Pattern pattern.
    * @return {Array} List of the generator modules path
    */
-  findGeneratorsIn(searchPaths: string | string[], options: { packagePatterns?: string } | string = {}) {
+  findGeneratorsIn(
+    searchPaths: string | string[],
+    options: {packagePatterns?: string} | string = {},
+  ) {
     if (typeof options === 'string') {
       options = {packagePatterns: options};
     }
@@ -405,7 +469,7 @@ export abstract class Resolver {
     searchPaths = Array.isArray(searchPaths) ? searchPaths : [searchPaths];
 
     return this.packageLookup.findPackagesIn(searchPaths, options);
-  };
+  }
 
   /**
    * Try registering a GeneratorEntry to this environment.
@@ -417,7 +481,11 @@ export abstract class Resolver {
    * @param  {String} [namespace] - namespace of the generator.
    * @return {boolean} true if the generator have been registered.
    */
-  _tryRegistering(generatorReference: string, packagePath?: string, namespace?: string) {
+  _tryRegistering(
+    generatorReference: string,
+    packagePath?: string,
+    namespace?: string,
+  ) {
     const realPath = fs.realpathSync(generatorReference);
 
     try {
@@ -430,10 +498,14 @@ export abstract class Resolver {
       this.register(realPath, namespace!, packagePath);
       return true;
     } catch (error) {
-      console.error('Unable to register %s (Error: %s)', generatorReference, error.message);
+      console.error(
+        'Unable to register %s (Error: %s)',
+        generatorReference,
+        error.message,
+      );
       return false;
     }
-  };
+  }
 
   /**
    * Get the npm lookup directories (`node_modules/`)
@@ -447,20 +519,25 @@ export abstract class Resolver {
    *                       with a supported path (don't touch at NODE_PATH paths).
    * @return {Array} lookup paths
    */
-  getNpmPaths(options: {
-    localOnly?: boolean;
-    filterPaths?: boolean;
-  } | boolean = {}) {
+  getNpmPaths(
+    options:
+      | {
+          localOnly?: boolean;
+          filterPaths?: boolean;
+        }
+      | boolean = {},
+  ) {
     // Resolve signature where options is boolean (localOnly).
     if (typeof options === 'boolean') {
       options = {localOnly: options};
     }
 
     // Backward compatibility
-    options.filterPaths = options.filterPaths === undefined ? false : options.filterPaths;
+    options.filterPaths =
+      options.filterPaths === undefined ? false : options.filterPaths;
 
     return this.packageLookup.getNpmPaths(options);
-  };
+  }
 
   /**
    * Get or create an alias.
@@ -491,13 +568,13 @@ export abstract class Resolver {
    *     env.alias('foo');
    *     // => gen-foo:all
    */
-  alias(match: string | RegExp, value: string);
-  alias(match: string);
+  alias(match: string | RegExp): string;
+  alias(match: string | RegExp, value: string): this;
   alias(match: string | RegExp, value?: string) {
     if (match && value) {
       this.aliases.push({
         match: match instanceof RegExp ? match : new RegExp(`^${match}$`),
-        value
+        value,
       });
       return this;
     }
@@ -511,6 +588,5 @@ export abstract class Resolver {
 
       return res.replace(alias.match, alias.value);
     }, <string>match);
-  };
-
+  }
 }

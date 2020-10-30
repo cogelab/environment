@@ -1,0 +1,8 @@
+.github/
+/coverage
+**/.sandbox
+dist
+*.json
+CHANGELOG.md
+*.yml
+src/__tests__/fixtures

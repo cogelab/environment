@@ -1,16 +1,15 @@
 import inquirer = require('inquirer');
 import sinon = require('sinon');
 import stripAnsi = require('strip-ansi');
-import logSymbols = require("log-symbols");
-import * as chalk from "chalk";
+import logSymbols = require('log-symbols');
+import chalk from 'chalk';
 import {TerminalAdapter} from '../adapter';
 
 describe('TerminalAdapter', () => {
   let adapter: TerminalAdapter;
-  let sandbox;
-  let stub;
-  let fakePromise;
-
+  let sandbox: sinon.SinonSandbox;
+  let stub: any;
+  let fakePromise: {then: any};
 
   beforeEach(function () {
     adapter = new TerminalAdapter();
@@ -30,7 +29,7 @@ describe('TerminalAdapter', () => {
     });
 
     it('pass its arguments to inquirer', function () {
-      const questions = [];``
+      const questions: any[] = [];
       const func = () => {};
       const ret = adapter.prompt(questions, func);
       sinon.assert.calledWith(stub, questions);
@@ -39,7 +38,7 @@ describe('TerminalAdapter', () => {
     });
 
     it('pass its arguments with answers to inquirer', function () {
-      const questions = [];
+      const questions: any[] = [];
       const answers = {};
       const func = () => {};
       const ret = adapter.prompt(questions, answers, func);
@@ -51,12 +50,15 @@ describe('TerminalAdapter', () => {
 
   describe('#prompt() with answers', () => {
     it('pass its arguments to inquirer', function (done) {
-      const questions = [];
+      const questions: any[] = [];
       const answers = {prompt1: 'foo'};
-      adapter.prompt(questions, answers).then(ret => {
-        expect(ret.prompt1).toBe(answers.prompt1);
-        done();
-      });
+      adapter
+        .prompt(questions, answers)
+        .then(ret => {
+          expect(ret.prompt1).toBe(answers.prompt1);
+          done();
+        })
+        .catch(done);
     });
   });
 
@@ -68,25 +70,24 @@ describe('TerminalAdapter', () => {
   });
 
   describe('#log()', () => {
-    let logMessage;
-    let spyerror;
+    let logMessage: string;
+    let spyerror: any;
     const stderrWriteBackup = process.stderr.write;
 
     beforeEach(function () {
       spyerror = sinon.spy(adapter.console, 'error');
 
       logMessage = '';
-      // @ts-ignore
+
       process.stderr.write = (() => {
-        return str => {
+        return (str: string) => {
           logMessage = str;
         };
-      })();
+      })() as any;
     });
 
     afterEach(function () {
-      // @ts-ignore
-      adapter.console.error.restore();
+      spyerror.restore();
       process.stderr.write = stderrWriteBackup;
     });
 
@@ -94,7 +95,7 @@ describe('TerminalAdapter', () => {
       adapter.logger.log('%has %many %reps', {
         has: 'has',
         many: 'many',
-        reps: 'reps'
+        reps: 'reps',
       });
       expect(spyerror.withArgs('has many reps').calledOnce).toBeTruthy();
       expect(stripAnsi(logMessage)).toBe('has many reps\n');
@@ -121,7 +122,7 @@ describe('TerminalAdapter', () => {
     it('#write() objects', function () {
       const outputObject = {
         something: 72,
-        another: 12
+        another: 12,
       };
 
       adapter.logger.log(outputObject);
@@ -131,14 +132,13 @@ describe('TerminalAdapter', () => {
   });
 
   describe('#log', () => {
-    let spylog;
+    let spylog: any;
     beforeEach(function () {
       spylog = sinon.spy(process.stderr, 'write');
     });
 
     afterEach(() => {
-      // @ts-ignore
-      process.stderr.write.restore();
+      spylog.restore();
     });
 
     it('#write() pass strings as they are', function () {
@@ -149,7 +149,9 @@ describe('TerminalAdapter', () => {
 
     it('#write() accepts util#format style arguments', function () {
       adapter.logger.write('A number: %d, a string: %s', 1, 'bla');
-      expect(spylog.withArgs('A number: 1, a string: bla').calledOnce).toBeTruthy();
+      expect(
+        spylog.withArgs('A number: 1, a string: bla').calledOnce,
+      ).toBeTruthy();
     });
 
     it('#writeln() adds a \\n at the end', function () {
@@ -160,12 +162,16 @@ describe('TerminalAdapter', () => {
 
     it('#colorful() writes colorful texts', function () {
       adapter.logger.colorful('{green dummy}');
-      expect(spylog.withArgs(`${chalk.green('dummy')}\n`).calledOnce).toBeTruthy();
+      expect(
+        spylog.withArgs(`${chalk.green('dummy')}\n`).calledOnce,
+      ).toBeTruthy();
     });
 
     it('#ok() adds a green "✔ " at the beginning and \\n at the end', function () {
       adapter.logger.ok('dummy');
-      expect(spylog.withArgs(`${logSymbols.success} dummy\n`).calledOnce).toBeTruthy();
+      expect(
+        spylog.withArgs(`${logSymbols.success} dummy\n`).calledOnce,
+      ).toBeTruthy();
     });
 
     it('#error() adds a green "✗ " at the beginning and \\n at the end', function () {

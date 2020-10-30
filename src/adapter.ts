@@ -1,9 +1,9 @@
 import inquirer = require('inquirer');
-import diff = require('diff');
 import chalk = require('chalk');
-import {Logger} from "./logger";
-import {ReadStream, WriteStream} from "tty";
-import {Console} from "console";
+import {ReadStream, WriteStream} from 'tty';
+import {Console} from 'console';
+import {Logger} from './logger';
+const diff = require('diff');
 
 export type Answers = Record<string, any>;
 export interface PromptModule {
@@ -15,7 +15,11 @@ export type PromptCallback<T> = (answers: T) => void;
 export interface Adapter {
   prompt<T>(questions: object | object[], cb?: PromptCallback<T>): Promise<T>;
 
-  prompt<T>(questions: object | object[], answers: T, cb?: PromptCallback<T>): Promise<T>;
+  prompt<T>(
+    questions: object | object[],
+    answers: T,
+    cb?: PromptCallback<T>,
+  ): Promise<T>;
 
   diff(actual: string, expected: string): string;
 }
@@ -46,7 +50,9 @@ export class TerminalAdapter implements Adapter {
     const stdout = options.stdout || process.stdout;
     const stderr = options.stderr || options.stdout || process.stderr;
 
-    this.promptModule = options.prompt || inquirer.createPromptModule({input: options.stdin, output: stdout});
+    this.promptModule =
+      options.prompt ||
+      inquirer.createPromptModule({input: options.stdin, output: stdout});
     this.console = options.console || new Console(stdout, stderr);
     this.logger = new Logger({console: this.console, stdout: options.stdout});
   }
@@ -59,8 +65,11 @@ export class TerminalAdapter implements Adapter {
     return chalk.bgRed;
   }
 
-  _colorLines(name, str) {
-    return str.split('\n').map(line => this[`_colorDiff${name}`](line)).join('\n');
+  _colorLines(name: string, str: string) {
+    return str
+      .split('\n')
+      .map((line: any) => (this as any)[`_colorDiff${name}`](line))
+      .join('\n');
   }
 
   /**
@@ -73,13 +82,18 @@ export class TerminalAdapter implements Adapter {
    * instances)
    *
    */
-  prompt(questions: object | object[], answers?: Answers | PromptCallback<Answers>, cb?: PromptCallback<Answers>): Promise<Answers> {
-    if (typeof answers === "function") {
+  prompt(
+    questions: object | object[],
+    answers?: Answers | PromptCallback<Answers>,
+    cb?: PromptCallback<Answers>,
+  ): Promise<Answers> {
+    if (typeof answers === 'function') {
       cb = <PromptCallback<Answers>>answers;
       answers = undefined;
     }
     const promise = this.promptModule(questions, answers);
-    promise.then(cb);
+    // eslint-disable-next-line no-void
+    void promise.then(cb);
     return promise;
   }
 
@@ -89,21 +103,25 @@ export class TerminalAdapter implements Adapter {
    * @param {string} actual
    * @param {string} expected
    */
-  diff(actual, expected) {
-    let msg = diff.diffLines(actual, expected).map(str => {
-      if (str.added) {
-        return this._colorLines('Added', str.value);
-      }
+  diff(actual: string, expected: string) {
+    let msg = diff
+      .diffLines(actual, expected)
+      .map((str: {added: any; value: any; removed: any}) => {
+        if (str.added) {
+          return this._colorLines('Added', str.value);
+        }
 
-      if (str.removed) {
-        return this._colorLines('Removed', str.value);
-      }
+        if (str.removed) {
+          return this._colorLines('Removed', str.value);
+        }
 
-      return str.value;
-    }).join('');
+        return str.value;
+      })
+      .join('');
 
     // Legend
-    msg = '\n' +
+    msg =
+      '\n' +
       this._colorDiffRemoved('removed') +
       ' ' +
       this._colorDiffAdded('added') +

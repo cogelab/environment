@@ -1,12 +1,12 @@
-const Generator = require("yeoman-generator");
+const Generator = require('yeoman-generator');
 
 class DummyTsGenerator extends Generator {
-  constructor(args, opts){
+  constructor(args, opts) {
     super(args, opts);
   }
 
   exec() {
-	    this.env.done = true;
+    this.env.done = true;
   }
 }
 

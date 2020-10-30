@@ -1,14 +1,15 @@
-import * as path from "path";
-import * as fs from "fs-extra";
-import toArray from "@loopx/utils/array/toArray";
-import * as execa from "execa";
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import toArray from '@loopx/utils/array/toArray';
+import * as execa from 'execa';
+import {Meta} from '../types';
 
-export function assertGenerator(real, resolved: string) {
+export function assertGenerator(real: Meta, resolved: string) {
   expect(real).toBeTruthy();
   expect(real.resolved).toBe(path.resolve(__dirname, resolved));
 }
 
-export function exec(cmd) {
+export function exec(cmd: string) {
   execa.sync(cmd, {shell: true});
 }
 
@@ -20,7 +21,7 @@ export function npmLinkFixtures(pkgs: string | string[]) {
       exec('npm link');
     }
   } finally {
-    process.chdir(cwd)
+    process.chdir(cwd);
   }
 }
 
@@ -32,17 +33,13 @@ export function npmUnlinkFixtures(pkgs: string | string[]) {
       exec('npm unlink');
     }
   } finally {
-    process.chdir(cwd)
+    process.chdir(cwd);
   }
 }
 
 export function fslinkDir(source: string, target: string) {
   if (!fs.existsSync(path.resolve(target))) {
-    fs.symlinkSync(
-      path.resolve(source),
-      path.resolve(target),
-      'dir'
-    );
+    fs.symlinkSync(path.resolve(source), path.resolve(target), 'dir');
     return target;
   }
   return '';
@@ -50,6 +47,6 @@ export function fslinkDir(source: string, target: string) {
 
 export function fsunlink(target: string | string[]) {
   for (const t of toArray(target)) {
-    t && fs.unlinkSync(path.resolve(t));
+    fs.unlinkSync(path.resolve(t));
   }
 }

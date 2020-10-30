@@ -3,20 +3,20 @@ import table = require('text-table');
 import chalk = require('chalk');
 import logSymbols = require('log-symbols');
 
-import {mergeDeep} from "@loopx/utils/object/mergeDeep";
-import {WriteStream} from "tty";
+import {mergeDeep} from '@loopx/utils/object/mergeDeep';
+import {WriteStream} from 'tty';
 
 // Padding step
-let padding = ' ';
+const padding = ' ';
 
-function pad(status) {
+function pad(status: string | any[]) {
   const max = 'identical'.length;
   const delta = max - status.length;
   return delta ? ' '.repeat(delta) + status : status;
 }
 
 // Borrowed from https://github.com/mikeal/logref/blob/master/main.js#L6-15
-function formatter(msg, ctx) {
+function formatter(msg: string, ctx: {[x: string]: any}) {
   while (msg.includes('%')) {
     const start = msg.indexOf('%');
     let end = msg.indexOf(' ', start);
@@ -43,12 +43,12 @@ const DEFAULT_COLORS = () => ({
 });
 
 export interface BuiltinLogColors {
-  skip: string
-  force: string
-  create: string
-  invoke: string
-  conflict: string
-  identical: string
+  skip: string;
+  force: string;
+  create: string;
+  invoke: string;
+  conflict: string;
+  identical: string;
   inject: string;
   info: string;
 }
@@ -64,7 +64,7 @@ export interface LogParams {
   console?: Console;
 }
 
-export type LogTableRow = Array<{ [name: string]: any }>;
+export type LogTableRow = Array<{[name: string]: any}>;
 
 export interface LogTableParams {
   rows: LogTableRow[];
@@ -73,7 +73,7 @@ export interface LogTableParams {
 export type LogTableOptions = LogTableRow[] | Partial<LogTableParams>;
 
 export type StatusLogger<T> = {
-  [p in keyof BuiltinLogColors]: ((...args: any[]) => T);
+  [p in keyof BuiltinLogColors]: (...args: any[]) => T;
 };
 
 export class Logger implements StatusLogger<Logger> {
@@ -108,7 +108,7 @@ export class Logger implements StatusLogger<Logger> {
     }
 
     return table(tableData);
-  };
+  }
 
   // `this.log` is a [logref](https://github.com/mikeal/logref)
   // compatible logger, with an enhanced API.
@@ -130,14 +130,14 @@ export class Logger implements StatusLogger<Logger> {
   // @param {Object} params.colors status mappings
   //
   // Returns the logger
-  log(msg: any, ...args) {
+  log(msg: any, ...args: any[]) {
     msg = msg || '';
 
     const ctx = args[0];
     if (typeof ctx === 'object' && !Array.isArray(ctx)) {
       this.console.error(formatter(msg, ctx));
     } else {
-      this.console.error.apply(this.console, arguments);
+      this.console.error.apply(this.console, [msg, ...args]);
     }
 
     return this;
@@ -146,83 +146,85 @@ export class Logger implements StatusLogger<Logger> {
   // A simple write method, with formatted message.
   //
   // Returns the logger
-  write(...args: any[]) {
-    this.stderr.write(util.format.apply(util, arguments));
+  write(fmt: any, ...args: any[]) {
+    this.stderr.write(util.format.apply(util, [fmt, ...args]));
     return this;
-  };
+  }
 
   // Same as `log.write()` but automatically appends a `\n` at the end
   // of the message.
-  writeln(...args) {
-    this.write.apply(this, arguments);
+  writeln(fmt: any, ...args: any[]) {
+    this.write.apply(this, [fmt, ...args]);
     this.write('\n');
     return this;
-  };
+  }
 
-  colorful(...args) {
-    this.write(chalkish`${util.format.apply(util, arguments)}` + '\n');
+  colorful(fmt: any, ...args: any[]) {
+    this.write(chalkish`${util.format.apply(util, [fmt, ...args])}` + '\n');
     return this;
   }
 
   // Convenience helper to write sucess status, this simply prepends the
   // message with a gren `✔`.
-  ok(...args) {
-    this.write(logSymbols.success + ' ' + util.format.apply(util, arguments) + '\n');
+  ok(fmt: any, ...args: any[]) {
+    this.write(
+      logSymbols.success + ' ' + util.format.apply(util, [fmt, ...args]) + '\n',
+    );
     return this;
-  };
+  }
 
-  error(...args) {
-    this.write(logSymbols.error + ' ' + util.format.apply(util, arguments) + '\n');
+  error(fmt: any, ...args: any[]) {
+    this.write(
+      logSymbols.error + ' ' + util.format.apply(util, [fmt, ...args]) + '\n',
+    );
     return this;
-  };
+  }
 
-  status(status: keyof LogColors, ...args) {
+  status(status: keyof LogColors, fmt: any, ...args: any[]) {
     const color = this.colors[status];
-    status = pad(status);
+    status = pad(status as any) as any;
     if (color) {
-      status = chalk[color](status);
+      status = (chalk as any)[color](status);
     }
-    this.write(status).write(padding);
-    this.write(util.format.apply(util, args) + '\n');
+    this.write(status as any).write(padding);
+    this.write(util.format.apply(util, [fmt, ...args]) + '\n');
     return this;
   }
 
-  conflict(...args: any[]): Logger {
-    return this.status('conflict', ...args);
+  conflict(fmt: any, ...args: any[]): Logger {
+    return this.status('conflict', fmt, ...args);
   }
 
-  create(...args: any[]): Logger {
-    return this.status('create', ...args);
+  create(fmt: any, ...args: any[]): Logger {
+    return this.status('create', fmt, ...args);
   }
 
-  force(...args: any[]): Logger {
-    return this.status('force', ...args);
+  force(fmt: any, ...args: any[]): Logger {
+    return this.status('force', fmt, ...args);
   }
 
-  identical(...args: any[]): Logger {
-    return this.status('identical', ...args);
+  identical(fmt: any, ...args: any[]): Logger {
+    return this.status('identical', fmt, ...args);
   }
 
-  info(...args: any[]): Logger {
-    return this.status('info', ...args);
+  info(fmt: any, ...args: any[]): Logger {
+    return this.status('info', fmt, ...args);
   }
 
-  inject(...args: any[]): Logger {
-    return this.status('inject', ...args);
+  inject(fmt: any, ...args: any[]): Logger {
+    return this.status('inject', fmt, ...args);
   }
 
-  invoke(...args: any[]): Logger {
-    return this.status('invoke', ...args);
+  invoke(fmt: any, ...args: any[]): Logger {
+    return this.status('invoke', fmt, ...args);
   }
 
-  skip(...args: any[]): Logger {
-    return this.status('skip', ...args);
+  skip(fmt: any, ...args: any[]): Logger {
+    return this.status('skip', fmt, ...args);
   }
-
 }
 
-function chalkish(parts: TemplateStringsArray, ...substitutions) {
-
+function chalkish(parts: TemplateStringsArray, ...substitutions: any[]) {
   const rawResults: string[] = [];
   const cookedResults: string[] = [];
 
@@ -243,8 +245,8 @@ function chalkish(parts: TemplateStringsArray, ...substitutions) {
   // original string, we can build the SINGLE value that we pass onto chalk. This
   // will cause chalk to evaluate the original generator as if it were a static
   // string (rather than a set of value substitutions).
-  const chalkParts: any = [cookedResults.join("")];
-  chalkParts.raw = [rawResults.join("")];
+  const chalkParts: any = [cookedResults.join('')];
+  chalkParts.raw = [rawResults.join('')];
 
-  return (chalk(chalkParts));
+  return chalk(chalkParts);
 }
