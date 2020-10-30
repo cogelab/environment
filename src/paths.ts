@@ -1,8 +1,8 @@
 import * as path from "path";
 import * as fs from "fs-extra";
 import untildify = require("untildify");
-import toArray from "@tib/utils/array/toArray";
-import identity from "@tib/utils/function/identity";
+import toArray from "@loopx/utils/array/toArray";
+import identity from "@loopx/utils/function/identity";
 import {execaOutput} from "./util";
 
 const os = process.platform;
