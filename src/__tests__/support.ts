@@ -29,8 +29,9 @@ export function npmUnlinkFixtures(pkgs: string | string[]) {
   const cwd = process.cwd();
   try {
     for (const pkg of toArray(pkgs)) {
-      process.chdir(path.resolve(__dirname, 'fixtures', pkg));
-      exec('npm unlink');
+      const p = path.resolve(__dirname, 'fixtures', pkg);
+      process.chdir(p);
+      exec('npm unlink ' + require(path.resolve(p, 'package.json')).name);
     }
   } finally {
     process.chdir(cwd);
@@ -46,7 +47,11 @@ export function fslinkDir(source: string, target: string) {
 }
 
 export function fsunlink(target: string | string[]) {
-  for (const t of toArray(target)) {
-    fs.unlinkSync(path.resolve(t));
+  try {
+    for (const t of toArray(target)) {
+      fs.unlinkSync(path.resolve(t));
+    }
+  } catch (e) {
+    //
   }
 }

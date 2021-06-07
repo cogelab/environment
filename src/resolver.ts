@@ -258,12 +258,9 @@ export class PackageLookup {
     const filterValidNpmPath = function (p: string, ignore = false) {
       return ignore
         ? p
-        : [
-            '/node_modules',
-            '/.node_modules',
-            '/.node_libraries',
-            '/node',
-          ].find(dir => p.endsWith(dir))
+        : ['/node_modules', '/.node_modules', '/.node_libraries', '/node'].find(
+            dir => p.endsWith(dir),
+          )
         ? p
         : '';
     };
